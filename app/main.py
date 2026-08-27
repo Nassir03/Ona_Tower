@@ -1,0 +1,82 @@
+import logging
+
+from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from fastapi.encoders import jsonable_encoder
+
+from app.api.router import api_router
+from app.api.routes.health import router as health_router
+from app.core.config import get_settings
+from app.core.exceptions import AppError
+from app.core.logging import configure_logging
+from app.middleware.request_context import RequestContextMiddleware
+
+settings = get_settings()
+configure_logging(settings.log_level)
+logger = logging.getLogger(__name__)
+
+app = FastAPI(
+    title=settings.app_name,
+    version="1.0.0",
+    debug=settings.app_debug,
+    docs_url="/docs" if settings.app_env != "production" else None,
+    redoc_url="/redoc" if settings.app_env != "production" else None,
+)
+
+app.add_middleware(RequestContextMiddleware)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_origins,
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Accept", "Content-Type", "Authorization", "X-Request-ID"],
+)
+
+app.include_router(health_router)
+app.include_router(api_router, prefix=settings.api_prefix)
+
+
+@app.exception_handler(AppError)
+async def app_error_handler(request: Request, exc: AppError):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "error": {
+                "code": exc.code,
+                "message": exc.message,
+                "request_id": getattr(request.state, "request_id", None),
+            }
+        },
+    )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_error_handler(request: Request, exc: RequestValidationError):
+    return JSONResponse(
+        status_code=422,
+        content={
+            "error": {
+                "code": "validation_error",
+                "message": "The request contains invalid data.",
+                "request_id": getattr(request.state, "request_id", None),
+                "details": jsonable_encoder(exc.errors()),
+            }
+        },
+    )
+
+
+@app.exception_handler(Exception)
+async def unhandled_error_handler(request: Request, exc: Exception):
+    logger.exception("Unhandled application error")
+    return JSONResponse(
+        status_code=500,
+        content={
+            "error": {
+                "code": "internal_server_error",
+                "message": "An unexpected server error occurred.",
+                "request_id": getattr(request.state, "request_id", None),
+            }
+        },
+    )
