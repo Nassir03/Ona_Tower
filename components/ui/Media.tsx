@@ -1,0 +1,3 @@
+import Image from 'next/image'
+const blur='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4IiBoZWlnaHQ9IjYiPjxyZWN0IHdpZHRoPSI4IiBoZWlnaHQ9IjYiIGZpbGw9IiNFNEQ5QzQiLz48L3N2Zz4='
+export function Media({src,alt,className='',priority=false}:{src:string;alt:string;className?:string;priority?:boolean}){return <div className={`relative overflow-hidden bg-sand ${className}`}><Image src={src} alt={alt} fill priority={priority} placeholder="blur" blurDataURL={blur} sizes="(max-width: 768px) 100vw, 60vw" className="object-cover transition-transform duration-[1500ms] ease-calm group-hover:scale-[1.025]"/></div>}
