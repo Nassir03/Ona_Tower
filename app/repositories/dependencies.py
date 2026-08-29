@@ -1,11 +1,15 @@
-from functools import lru_cache
+from collections.abc import Generator
 
+from app.database.session import SessionLocal
 from app.repositories.base import BackendRepository
-from app.repositories.memory import InMemoryRepository
+from app.repositories.postgres import PostgresRepository
 
 
-@lru_cache
-def get_repository() -> BackendRepository:
-    # Development-safe default.
-    # Database team replaces this with their concrete repository adapter.
-    return InMemoryRepository()
+def get_repository() -> Generator[BackendRepository, None, None]:
+    """Provide a PostgreSQL repository with a request-scoped database session."""
+    db = SessionLocal()
+
+    try:
+        yield PostgresRepository(db)
+    finally:
+        db.close()
