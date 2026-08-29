@@ -1,2 +1,2 @@
-import {Home} from '@/components/sections/Home'
-export default function Page(){return <Home/>}
+import {OnaCampaign} from '@/components/cinematic/OnaCampaign'
+export default function Page(){return <OnaCampaign/>}

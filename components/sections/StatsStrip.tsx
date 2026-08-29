@@ -11,6 +11,6 @@ function Counter({value,prefix='',suffix=''}:{value:number;prefix?:string;suffix
   return <span ref={ref}>{prefix}{count}{suffix}</span>
 }
 
-export function StatsStrip(){return <section className="bg-charcoal py-20 text-ivory"><div className="page-shell"><div className="grid gap-12 md:grid-cols-3">{[
-  ['2 Bedroom',202,'≈ ',' m²'],['3 Bedroom',235,'≈ ',' m²'],['Penthouses',400,'','+ m²'],
-].map(([label,value,prefix,suffix])=><div key={label as string}><p className="text-xs uppercase tracking-[.18em] text-ivory/55">{label}</p><strong className="mt-3 block font-display text-[clamp(3.4rem,6vw,6rem)] font-normal"><Counter value={value as number} prefix={prefix as string} suffix={suffix as string}/></strong></div>)}</div><p className="mt-14 border-t border-ivory/15 pt-8 text-ivory/65">Designed around how people live, not just how many units can fit.</p></div></section>}
+export function StatsStrip(){return <section className="bg-charcoal py-20 text-bone"><div className="page-shell"><div className="grid gap-12 md:grid-cols-3">{[
+  ['2 Bedroom',203,'≈ ',' m²'],['3 Bedroom',236,'≈ ',' m²'],['Largest Penthouse',482,'≈ ',' m²'],
+].map(([label,value,prefix,suffix])=><div key={label as string}><p className="text-xs uppercase tracking-[.18em] text-bone/55">{label}</p><strong className="mt-3 block font-display text-[clamp(3.4rem,6vw,6rem)] font-normal"><Counter value={value as number} prefix={prefix as string} suffix={suffix as string}/></strong></div>)}</div><p className="mt-14 border-t border-bone/15 pt-8 text-bone/65">Designed around how people live, not just how many units can fit.</p></div></section>}
