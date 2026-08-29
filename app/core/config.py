@@ -12,8 +12,15 @@ class Settings(BaseSettings):
     api_prefix: str = "/api"
     host: str = "0.0.0.0"
     port: int = 8400
-    cors_origins: list[str] = ["http://localhost:3000", "http://127.0.0.1:3000"]
+    cors_origins: list[str] = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ]
     log_level: str = "INFO"
+
+    database_url: str = (
+        "postgresql+psycopg://ona_user:ona_password@localhost:5432/ona_towers"
+    )
 
     enquiry_rate_limit_count: int = 5
     enquiry_rate_limit_window_seconds: int = 3600
@@ -30,7 +37,11 @@ class Settings(BaseSettings):
     smtp_use_tls: bool = True
     sales_notification_email: str | None = None
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", case_sensitive=False)
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+    )
 
     @field_validator("cors_origins", mode="before")
     @classmethod
