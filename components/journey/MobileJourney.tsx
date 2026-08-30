@@ -1,0 +1,9 @@
+'use client'
+import {useState} from 'react'
+import {Reveal} from '@/components/ui/Reveal'
+import {Media} from '@/components/ui/Media'
+import type {JourneyChapter} from '@/data/journey'
+import {JourneyFrame} from './JourneyFrame'
+
+function MobileFloor({chapter,index}:{chapter:Extract<JourneyChapter,{type:'floor'}>;index:number}){const[finished,setFinished]=useState(false);return <Reveal><article className="relative min-h-[78svh] bg-charcoal text-bone"><div className="absolute inset-0"><Media src={finished?chapter.finishedImage:chapter.blueprintImage} alt={`${chapter.label} ${finished?'finished':'blueprint'} placeholder`} className="h-full"/></div><div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-transparent to-charcoal/15"/><span className="absolute right-5 top-6 text-[10px] tracking-[.18em]">{String(index+1).padStart(2,'0')}</span><div className="absolute bottom-10 left-5 right-5"><p className="text-[10px] uppercase tracking-[.2em] text-bone/65">{chapter.label} · {chapter.size}</p><h2 className="mt-4 font-display text-5xl leading-none">{chapter.caption}</h2><button type="button" onClick={()=>setFinished(!finished)} aria-pressed={finished} className="mt-7 border-b border-hairline pb-1 text-[10px] uppercase tracking-[.15em]">{finished?'See blueprint':'See finished'}</button></div></article></Reveal>}
+export function MobileJourney({chapters,className='md:hidden'}:{chapters:JourneyChapter[];className?:string}){return <div className={className}>{chapters.map((chapter,index)=>chapter.type==='floor'?<MobileFloor key={index} chapter={chapter} index={index}/>:<Reveal className="relative" key={index}><JourneyFrame chapter={chapter} index={index} mobile/><span className="pointer-events-none absolute right-5 top-6 text-[10px] tracking-[.18em] text-bone">{String(index+1).padStart(2,'0')}</span></Reveal>)}</div>}

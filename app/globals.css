@@ -1,0 +1,160 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ona-onyx: #080808;
+  --ona-graphite: #171716;
+  --ona-porcelain: #F7F5F0;
+  --ona-ivory: #FFFDF8;
+  --ona-stone: #D7D0C5;
+  --ona-champagne: #AE9A7C;
+  --space-xs: 0.5rem;
+  --space-sm: 1rem;
+  --space-md: 1.5rem;
+  --space-lg: 2.5rem;
+  --space-xl: 4rem;
+  --space-2xl: 6rem;
+  --space-3xl: 9rem;
+  --space-4xl: 12rem;
+  --font-display-weight: 600;
+  --font-heading-weight: 600;
+  --font-body-weight: 500;
+  --font-ui-weight: 600;
+}
+
+@layer base {
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    @apply overflow-x-hidden bg-bone font-sans leading-relaxed tracking-[-.012em] text-graphite;
+    font-weight: var(--font-body-weight);
+    letter-spacing: -0.01em;
+  }
+  ::selection { background: var(--ona-champagne); color: var(--ona-ivory); }
+  h1, h2, h3, p { margin-top: 0; }
+  h1, h2, h3 { font-weight: var(--font-heading-weight); }
+  p, li, label, input, textarea, select, button, span { font-family: var(--font-sans), Arial, sans-serif; }
+  a { @apply transition-opacity duration-300; }
+  a:hover { opacity: .8; }
+}
+
+@layer components {
+  .page-shell {
+    @apply mx-auto w-full max-w-[1500px] px-5 md:px-8 lg:px-[clamp(1.5rem,5vw,5.5rem)];
+  }
+  .section-space { @apply py-[clamp(6rem,10vw,11rem)]; }
+
+  .hero-display {
+    font-family: var(--font-display), Georgia, serif;
+    font-size: clamp(4.5rem, 8.2vw, 9.2rem);
+    font-weight: 600;
+    line-height: .88;
+    letter-spacing: -.035em;
+  }
+
+  .chapter-display {
+    font-family: var(--font-display), Georgia, serif;
+    font-size: clamp(3.5rem, 6.2vw, 6.8rem);
+    font-weight: 600;
+    line-height: .92;
+    letter-spacing: -.03em;
+  }
+
+  .editorial-statement {
+    font-family: var(--font-display), Georgia, serif;
+    font-size: clamp(2.25rem, 4vw, 4.5rem);
+    font-weight: 600;
+    line-height: 1.02;
+    letter-spacing: -.025em;
+  }
+
+  .section-heading {
+    font-family: var(--font-display), Georgia, serif;
+    font-size: clamp(2.5rem, 4.2vw, 4.8rem);
+    font-weight: 600;
+    line-height: .98;
+    letter-spacing: -.025em;
+  }
+
+  .display {
+    font-family: var(--font-display), Georgia, serif;
+    font-size: clamp(3rem, 6vw, 6.5rem);
+    font-weight: 600;
+    letter-spacing: -.035em;
+    line-height: .92;
+  }
+
+  .eyebrow {
+    @apply mb-7 uppercase leading-none;
+    font-family: var(--font-sans), Arial, sans-serif;
+    font-size: clamp(.78rem, .8vw, .92rem);
+    font-weight: 600;
+    letter-spacing: .11em;
+  }
+
+  .body-copy {
+    font-family: var(--font-sans), Arial, sans-serif;
+    font-size: clamp(1.025rem, 1.15vw, 1.2rem);
+    font-weight: 500;
+    line-height: 1.65;
+    letter-spacing: -.005em;
+    max-width: 52ch;
+  }
+
+  .intro-copy {
+    font-family: var(--font-sans), Arial, sans-serif;
+    font-size: clamp(1.25rem, 1.8vw, 1.75rem);
+    font-weight: 500;
+    line-height: 1.5;
+    letter-spacing: -.01em;
+    max-width: 36ch;
+  }
+
+  .nav-link {
+    font-family: var(--font-sans), Arial, sans-serif;
+    font-size: clamp(.84rem, .9vw, .96rem);
+    font-weight: 600;
+    letter-spacing: .01em;
+  }
+
+  .button-light,
+  .button-dark,
+  .button-ghost,
+  .arrow-link {
+    font-family: var(--font-sans), Arial, sans-serif;
+  }
+
+  .button-light { @apply inline-flex items-center gap-8 border border-graphite bg-bone px-6 py-3.5 text-sm font-bold uppercase tracking-[.04em] text-graphite; }
+  .button-dark { @apply inline-flex items-center gap-8 bg-graphite px-6 py-3.5 text-sm font-bold uppercase tracking-[.04em] text-bone; }
+  .button-ghost { @apply inline-flex items-center gap-8 border border-bone/70 px-6 py-3.5 text-sm font-bold uppercase tracking-[.04em] text-bone; }
+  .arrow-link { @apply inline-flex items-center gap-5 border-b border-hairline pb-1 text-sm font-bold uppercase tracking-[.08em]; }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display), Georgia, serif;
+    font-weight: 600;
+  }
+  .font-display.italic {
+    font-family: var(--font-display), Georgia, serif;
+    font-style: italic;
+    font-weight: 600;
+  }
+  .font-editorial {
+    font-family: var(--font-display), Georgia, serif;
+    font-weight: 600;
+  }
+  .text-sm { font-size: clamp(1rem, 1.2vw, 1.2rem); line-height: 1.65; }
+  .text-xs:not([class*="uppercase"]) { font-size: clamp(.94rem, 1vw, 1.05rem); line-height: 1.6; }
+  [class*="uppercase"][class*="tracking-"] { font-size: clamp(.75rem, .82vw, .92rem); font-weight: 700; }
+  [class~="text-graphite/55"], [class~="text-graphite/50"], [class~="text-graphite/45"], [class~="text-graphite/40"], [class~="text-graphite/35"] { color: rgb(23 23 22 / .78); }
+  [class~="text-bone/65"], [class~="text-bone/60"], [class~="text-bone/55"], [class~="text-bone/50"], [class~="text-bone/45"], [class~="text-bone/35"] { color: rgb(247 245 240 / .82); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto !important; }
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+
+[class~="rotate-x-[58deg]"][class~="rotate-z-[-3deg]"] { transform: rotateX(58deg) rotateZ(-3deg); transform-style: preserve-3d; }
