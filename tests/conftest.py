@@ -2,6 +2,7 @@ import os
 os.environ["APP_ENV"] = "test"
 os.environ["APP_DEBUG"] = "false"
 os.environ["ENQUIRY_RATE_LIMIT_COUNT"] = "100"
+os.environ["DATABASE_URL"] = "sqlite+pysqlite:///:memory:"
 
 import pytest
 from fastapi.testclient import TestClient

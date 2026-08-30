@@ -9,8 +9,9 @@ from app.schemas.residence import ResidenceDetail, ResidenceSummary
 class BackendRepository(ABC):
     """Backend-to-database contract.
 
-    The database owner should implement this interface with the real database layer.
-    The backend does not define tables, migrations, SQLAlchemy models, or database credentials.
+    Production requests use the PostgreSQL implementation in
+    ``app.repositories.postgres.PostgresRepository``. Tests may replace it with
+    an in-memory implementation through FastAPI dependency overrides.
     """
 
     @abstractmethod

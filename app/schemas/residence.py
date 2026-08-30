@@ -32,6 +32,6 @@ class ResidenceSummary(BaseModel):
 
 class ResidenceDetail(ResidenceSummary):
     long_description: str | None = None
-    features: list[str] = []
-    media: list[ResidenceMedia] = []
-    floor_plans: list[FloorPlan] = []
+    features: list[str] = Field(default_factory=list)
+    media: list[ResidenceMedia] = Field(default_factory=list)
+    floor_plans: list[FloorPlan] = Field(default_factory=list)

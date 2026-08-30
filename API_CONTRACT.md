@@ -80,7 +80,4 @@ Success:
 
 ## Database integration boundary
 
-The backend depends only on `app.repositories.base.BackendRepository`.
-The database team should implement that interface and replace the provider in `app/repositories/dependencies.py`.
-
-The backend deliberately contains no table definitions, migrations, SQL, ORM models or database credentials.
+The API layer depends on `app.repositories.base.BackendRepository`. The active provider in `app/repositories/dependencies.py` creates a request-scoped `PostgresRepository`, which uses SQLAlchemy models and PostgreSQL. Tests can override the provider with the in-memory repository. Database credentials are supplied through environment variables and are not hard-coded into application logic.

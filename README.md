@@ -1,71 +1,128 @@
-# ONA Towers Backend Only
+# ONA Towers Backend
 
-This project contains only the backend workstream for the ONA Towers website.
+FastAPI backend for ONA Towers with PostgreSQL persistence through SQLAlchemy and schema migrations through Alembic.
 
-It intentionally does **not** implement the database workstream. There are no SQLAlchemy models, Alembic migrations, SQL schemas, database seed scripts or database credentials.
+## What is connected
 
-## Backend responsibilities implemented
+The production request path is:
 
-- FastAPI application and REST API contracts
-- residence list/detail endpoints
-- optional amenities, smart-features and location endpoints
-- enquiry submission endpoint
-- server-side validation
-- input sanitization
-- honeypot anti-spam protection
-- duplicate enquiry protection
-- in-process IP rate limiting
-- consistent error responses
-- request IDs and JSON logging
-- security response headers
-- CORS configuration
-- optional SMTP sales notification and customer acknowledgement
-- environment configuration
-- automated API tests
-- Docker deployment file
-- repository contract for the database team
+`Frontend -> FastAPI -> PostgresRepository -> SQLAlchemy -> PostgreSQL`
 
-## Why there is an in-memory repository
+The active repository dependency is `PostgresRepository` in `app/repositories/dependencies.py`. The in-memory repository is used only by automated tests through dependency overrides.
 
-`app/repositories/memory.py` is a development/test adapter so the backend can run before the database team's real persistence layer is ready. It is not a database implementation and should not be used as production persistence.
+## Requirements
 
-The database team should implement `BackendRepository` in `app/repositories/base.py` and inject their adapter through `app/repositories/dependencies.py`.
+- Python 3.10-3.13
+- PostgreSQL
+- pip / virtual environment support
 
-## Run locally
+## First-time local setup
 
-Use Python 3.10, 3.11, 3.12, or 3.13. The pinned backend dependencies do not currently install cleanly on Python 3.14 in locked-down Windows environments because pip may try to compile native wheels.
+### 1. Create and activate a virtual environment
+
+Linux / Ubuntu:
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
+python -m pip install --upgrade pip
 pip install -r requirements.txt
-cp .env.example .env
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8400
 ```
 
 Windows PowerShell:
 
 ```powershell
-py -3.10 -m venv .venv
+py -3.12 -m venv .venv
 .\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
 pip install -r requirements.txt
-Copy-Item .env.example .env
+```
+
+Do not reuse a `.venv` copied from another operating system. Recreate it locally.
+
+### 2. Create the PostgreSQL database
+
+The default development configuration expects:
+
+- database: `ona_towers`
+- user: `ona_user`
+- host: `localhost`
+- port: `5432`
+
+Example PostgreSQL commands:
+
+```sql
+CREATE USER ona_user WITH PASSWORD 'ona_password';
+CREATE DATABASE ona_towers OWNER ona_user;
+```
+
+Use a different password for non-local environments.
+
+### 3. Create `.env`
+
+```bash
+cp .env.example .env
+```
+
+Confirm that `DATABASE_URL` in `.env` matches the database you created:
+
+```env
+DATABASE_URL=postgresql+psycopg://ona_user:ona_password@localhost:5432/ona_towers
+```
+
+### 4. Apply migrations
+
+```bash
+alembic upgrade head
+```
+
+### 5. Seed the initial residence records
+
+```bash
+python -m app.database.seed
+```
+
+### 6. Verify the database completely
+
+```bash
+python -m app.database.check
+```
+
+A ready local database prints:
+
+```text
+Database connection: OK
+Schema check: OK
+Residence rows: 3
+Seed data: OK
+Backend/database readiness: PASS
+```
+
+### 7. Run the backend
+
+```bash
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8400
 ```
 
-Open Swagger in development:
+Then open:
 
-`http://localhost:8400/docs`
+- API docs: `http://127.0.0.1:8400/docs`
+- app health: `http://127.0.0.1:8400/health`
+- database health: `http://127.0.0.1:8400/health/database`
+- residences: `http://127.0.0.1:8400/api/residences`
 
-## Test
+## Automated tests
 
 ```bash
-pytest -q
+python -m pytest -v
 ```
 
-## Endpoints
+The tests use an isolated in-memory test database configuration and an in-memory repository override, so they do not modify local PostgreSQL data.
+
+## Main endpoints
 
 - `GET /health`
+- `GET /health/database`
 - `GET /api/residences`
 - `GET /api/residences/{slug}`
 - `GET /api/amenities`
@@ -73,18 +130,44 @@ pytest -q
 - `GET /api/location-points`
 - `POST /api/enquiries`
 
-See `API_CONTRACT.md` for request/response details.
+See `API_CONTRACT.md` for request and response details.
 
-## Database-team handoff
+## Database files
 
-The backend expects these repository operations:
+- `app/database/models.py` - SQLAlchemy table models
+- `app/database/session.py` - SQLAlchemy engine/session configuration
+- `app/database/seed.py` - initial residence seed data
+- `app/database/check.py` - DB/schema/seed readiness verification
+- `app/repositories/postgres.py` - PostgreSQL-backed repository implementation
+- `migrations/` - Alembic migration history
+- `DATABASE.md` - database design and operations notes
 
-- `list_residences()`
-- `get_residence_by_slug(slug)`
-- `list_amenities()`
-- `list_smart_features()`
-- `list_location_points()`
-- `create_enquiry(enquiry, reference_number)`
-- `has_recent_duplicate_enquiry(...)`
+## Docker
 
-The database team owns all table design, relationships, migrations, indexes, production persistence, reference data and backup/restore work.
+The image contains both the application and Alembic migrations. Supply `DATABASE_URL` at runtime.
+
+Build:
+
+```bash
+docker build -t ona-towers-api .
+```
+
+Apply migrations using the image:
+
+```bash
+docker run --rm --network host --env-file .env ona-towers-api alembic upgrade head
+```
+
+Seed data:
+
+```bash
+docker run --rm --network host --env-file .env ona-towers-api python -m app.database.seed
+```
+
+Run API:
+
+```bash
+docker run --rm --network host --env-file .env ona-towers-api
+```
+
+For production, use a managed PostgreSQL instance or an application network rather than relying on host networking.

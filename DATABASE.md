@@ -21,6 +21,7 @@ Example:
 
 ```env
 DATABASE_URL=postgresql+psycopg://ona_user:ona_password@localhost:5432/ona_towers
+```
 
 Real passwords should be stored in a local .env file and must not be committed to Git.
 
