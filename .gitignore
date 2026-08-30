@@ -1,7 +1,8 @@
 node_modules/
+build/
 dist/
-.next/
-.vite/
-*.local
+coverage/
+.DS_Store
 *.log
-deliverables/
+.env*
+!.env.example
