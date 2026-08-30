@@ -1,0 +1,8 @@
+'use client'
+import {useEffect,useState} from 'react'
+import {Menu,X} from 'lucide-react'
+const links=[['Residences','residences'],['Life at ONA','lifestyle'],['Commercial','commercial'],['Enquire','enquire']]
+export function CampaignHeader(){const[solid,setSolid]=useState(false);const[open,setOpen]=useState(false)
+ useEffect(()=>{const update=()=>setSolid(scrollY>innerHeight*1.65);update();addEventListener('scroll',update,{passive:true});return()=>removeEventListener('scroll',update)},[])
+ const go=(id:string)=>{document.getElementById(id)?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});setOpen(false)}
+ return <header className={`fixed inset-x-0 top-0 z-50 flex h-16 items-center justify-between px-5 transition-colors duration-500 md:px-8 ${solid?'bg-bone/95 text-graphite backdrop-blur':'text-bone'}`}><button onClick={()=>go('top')} className="font-display text-xl leading-[.7]">ONA<span className="block text-[6px] uppercase tracking-[.32em]">Towers</span></button><nav className="hidden gap-7 text-[8px] uppercase tracking-[.18em] md:flex">{links.map(([label,id])=><button key={id} onClick={()=>go(id)}>{label}</button>)}</nav><button onClick={()=>setOpen(true)} className="md:hidden" aria-label="Open navigation"><Menu size={18}/></button>{open&&<div className="fixed inset-0 bg-charcoal p-7 text-bone"><button onClick={()=>setOpen(false)} className="float-right" aria-label="Close navigation"><X/></button><div className="mt-24 grid gap-7 font-display text-4xl">{links.map(([label,id])=><button className="text-left" key={id} onClick={()=>go(id)}>{label}</button>)}</div></div>}</header>}

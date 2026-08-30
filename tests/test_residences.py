@@ -2,7 +2,7 @@ def test_list_residences(client):
     response = client.get("/api/residences")
     assert response.status_code == 200
     data = response.json()
-    assert [item["slug"] for item in data] == ["2-bedroom", "3-bedroom", "penthouse"]
+    assert [item["slug"] for item in data] == ["2-bedroom", "3-bedroom", "penthouse-3bed", "penthouse-4bed"]
 
 
 def test_get_residence(client):

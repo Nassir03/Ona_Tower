@@ -1,26 +1,47 @@
-# ONA Towers Backend
+# ONA Towers — Full Stack Website
 
-FastAPI backend for ONA Towers with PostgreSQL persistence through SQLAlchemy and schema migrations through Alembic.
+A polished ONA Towers marketing website with a **Vite + React** frontend and **FastAPI + SQLAlchemy** backend.
 
-## What is connected
+## Final local ports
 
-The production request path is:
+- Frontend: **http://127.0.0.1:3020**
+- Backend: **http://127.0.0.1:8400**
+- API docs: **http://127.0.0.1:8400/docs**
 
-`Frontend -> FastAPI -> PostgresRepository -> SQLAlchemy -> PostgreSQL`
-
-The active repository dependency is `PostgresRepository` in `app/repositories/dependencies.py`. The in-memory repository is used only by automated tests through dependency overrides.
+The frontend enquiry form is connected to `POST /api/enquiries` on the backend.
 
 ## Requirements
 
-- Python 3.10-3.13
-- PostgreSQL
+- Node.js 20+ (Node 22 recommended)
+- npm
+- Python 3.10–3.13
 - pip / virtual environment support
 
-## First-time local setup
+PostgreSQL is **optional for local development**. The project defaults to SQLite so it can run immediately. Production can use PostgreSQL by setting `DATABASE_URL`.
 
-### 1. Create and activate a virtual environment
+## First-time setup
 
-Linux / Ubuntu:
+From the project root:
+
+### 1. Create the environment file
+
+Linux / macOS:
+
+```bash
+cp .env.example .env
+```
+
+Windows PowerShell:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+The provided defaults already use frontend port `3020`, backend port `8400`, and a local SQLite database.
+
+### 2. Install backend dependencies
+
+Linux / macOS:
 
 ```bash
 python3 -m venv .venv
@@ -38,89 +59,87 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-Do not reuse a `.venv` copied from another operating system. Recreate it locally.
-
-### 2. Create the PostgreSQL database
-
-The default development configuration expects:
-
-- database: `ona_towers`
-- user: `ona_user`
-- host: `localhost`
-- port: `5432`
-
-Example PostgreSQL commands:
-
-```sql
-CREATE USER ona_user WITH PASSWORD 'ona_password';
-CREATE DATABASE ona_towers OWNER ona_user;
-```
-
-Use a different password for non-local environments.
-
-### 3. Create `.env`
+### 3. Install frontend dependencies
 
 ```bash
-cp .env.example .env
+npm install
 ```
 
-Confirm that `DATABASE_URL` in `.env` matches the database you created:
+## Run the project
 
-```env
-DATABASE_URL=postgresql+psycopg://ona_user:ona_password@localhost:5432/ona_towers
-```
+Use **two terminals** from the project root.
 
-### 4. Apply migrations
+### Terminal 1 — backend on 8400
 
-```bash
-alembic upgrade head
-```
-
-### 5. Seed the initial residence records
-
-```bash
-python -m app.database.seed
-```
-
-### 6. Verify the database completely
-
-```bash
-python -m app.database.check
-```
-
-A ready local database prints:
-
-```text
-Database connection: OK
-Schema check: OK
-Residence rows: 3
-Seed data: OK
-Backend/database readiness: PASS
-```
-
-### 7. Run the backend
+Activate the Python virtual environment, then run:
 
 ```bash
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8400
 ```
 
-Then open:
+On first development startup, the local SQLite schema and baseline content are created automatically.
 
-- API docs: `http://127.0.0.1:8400/docs`
-- app health: `http://127.0.0.1:8400/health`
-- database health: `http://127.0.0.1:8400/health/database`
-- residences: `http://127.0.0.1:8400/api/residences`
+Verify:
 
-## Automated tests
-
-```bash
-python -m pytest -v
+```text
+http://127.0.0.1:8400/health
+http://127.0.0.1:8400/health/database
+http://127.0.0.1:8400/docs
 ```
 
-The tests use an isolated in-memory test database configuration and an in-memory repository override, so they do not modify local PostgreSQL data.
+### Terminal 2 — frontend on 3020
 
-## Main endpoints
+```bash
+npm run dev
+```
 
+Open:
+
+```text
+http://127.0.0.1:3020
+```
+
+## Tests and checks
+
+Backend tests:
+
+```bash
+pytest -q
+```
+
+Database readiness:
+
+```bash
+python -m app.database.check
+```
+
+Frontend production build:
+
+```bash
+npm run build
+```
+
+## PostgreSQL option
+
+For production or PostgreSQL-based development, set this in `.env`:
+
+```env
+DATABASE_URL=postgresql+psycopg://ona_user:YOUR_PASSWORD@localhost:5432/ona_towers
+AUTO_INIT_DB=false
+```
+
+Then create the database and apply migrations:
+
+```bash
+alembic upgrade head
+python -m app.database.seed
+```
+
+For production, use a strong password and managed database credentials.
+
+## Main backend endpoints
+
+- `GET /`
 - `GET /health`
 - `GET /health/database`
 - `GET /api/residences`
@@ -130,44 +149,16 @@ The tests use an isolated in-memory test database configuration and an in-memory
 - `GET /api/location-points`
 - `POST /api/enquiries`
 
-See `API_CONTRACT.md` for request and response details.
+## Project layout
 
-## Database files
-
-- `app/database/models.py` - SQLAlchemy table models
-- `app/database/session.py` - SQLAlchemy engine/session configuration
-- `app/database/seed.py` - initial residence seed data
-- `app/database/check.py` - DB/schema/seed readiness verification
-- `app/repositories/postgres.py` - PostgreSQL-backed repository implementation
-- `migrations/` - Alembic migration history
-- `DATABASE.md` - database design and operations notes
-
-## Docker
-
-The image contains both the application and Alembic migrations. Supply `DATABASE_URL` at runtime.
-
-Build:
-
-```bash
-docker build -t ona-towers-api .
+```text
+src/                 Active Vite/React frontend
+public/              ONA image assets
+app/                  FastAPI backend
+app/database/         SQLAlchemy database layer and local bootstrap
+app/repositories/     Data access layer
+migrations/           Alembic migrations for production databases
+tests/                Backend API tests
 ```
 
-Apply migrations using the image:
-
-```bash
-docker run --rm --network host --env-file .env ona-towers-api alembic upgrade head
-```
-
-Seed data:
-
-```bash
-docker run --rm --network host --env-file .env ona-towers-api python -m app.database.seed
-```
-
-Run API:
-
-```bash
-docker run --rm --network host --env-file .env ona-towers-api
-```
-
-For production, use a managed PostgreSQL instance or an application network rather than relying on host networking.
+The obsolete duplicate Next.js frontend prototype was removed from the runnable project so there is one clear frontend implementation and one backend implementation.

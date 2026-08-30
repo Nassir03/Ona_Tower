@@ -2,25 +2,34 @@
 
 ## Overview
 
-The ONA Towers backend uses PostgreSQL for persistent storage, SQLAlchemy for database access, and Alembic for schema migrations.
+The ONA Towers backend uses SQLAlchemy for database access. Local development defaults to SQLite for zero-setup startup; PostgreSQL is supported and recommended for production. Alembic provides managed schema migrations.
 
 The database layer supports residence information, residence media, floor plans, amenities, smart-living features, location points, and customer enquiries.
 
 ## Technology
 
-- PostgreSQL 18
+- SQLite (default local development)
+- PostgreSQL (production option)
 - SQLAlchemy 2.0
 - Alembic
-- psycopg 3
+- psycopg 3 for PostgreSQL
 
 ## Database Configuration
 
 The application reads the database connection from the `DATABASE_URL` environment variable.
 
-Example:
+Local default:
+
+```env
+DATABASE_URL=sqlite+pysqlite:///./ona_towers.db
+AUTO_INIT_DB=true
+```
+
+PostgreSQL example:
 
 ```env
 DATABASE_URL=postgresql+psycopg://ona_user:ona_password@localhost:5432/ona_towers
+AUTO_INIT_DB=false
 ```
 
 Real passwords should be stored in a local .env file and must not be committed to Git.
@@ -187,7 +196,7 @@ InMemoryRepository
 
 The persistent database implementation is:
 
-PostgresRepository
+SQLAlchemy repository
 
 The request flow is:
 
@@ -197,7 +206,7 @@ Frontend
 FastAPI
    |
    v
-PostgresRepository
+SQLAlchemy repository
    |
    v
 SQLAlchemy
@@ -312,7 +321,7 @@ Database user: ona_user
 Host: localhost
 Port: 5432
 
-A developer should configure the correct local password through the DATABASE_URL environment variable before running the backend.
+SQLite requires no database password. When PostgreSQL is selected, configure its credentials through DATABASE_URL before running the backend.
 
 Final Database Handover
 

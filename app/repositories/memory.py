@@ -35,13 +35,24 @@ class InMemoryRepository(BackendRepository):
                 display_order=2,
             ),
             ResidenceDetail(
-                id="res-penthouse",
-                slug="penthouse",
-                name="Penthouse",
+                id="res-penthouse-3",
+                slug="penthouse-3bed",
+                name="03 Bedroom Signature Penthouse",
                 type="Penthouse",
-                bedrooms=None,
+                bedrooms=3,
+                size_m2=416,
                 short_description=None,
                 display_order=3,
+            ),
+            ResidenceDetail(
+                id="res-penthouse-4",
+                slug="penthouse-4bed",
+                name="04 Bedroom Signature Penthouse",
+                type="Penthouse",
+                bedrooms=4,
+                size_m2=482,
+                short_description=None,
+                display_order=4,
             ),
         ]
         self._amenities: list[Amenity] = []

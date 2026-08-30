@@ -10,7 +10,6 @@ from app.database.models import Residence
 from app.database.session import SessionLocal
 
 REQUIRED_TABLES = {
-    "alembic_version",
     "residences",
     "residence_media",
     "floor_plans",
@@ -33,12 +32,10 @@ def main() -> int:
                 print("Database connection: OK")
                 print("Schema check: FAILED")
                 print("Missing tables: " + ", ".join(missing_tables))
-                print("Run: alembic upgrade head")
+                print("Start the backend once (AUTO_INIT_DB=true) or run: alembic upgrade head")
                 return 1
 
-            residence_count = db.scalar(
-                select(func.count()).select_from(Residence)
-            ) or 0
+            residence_count = db.scalar(select(func.count()).select_from(Residence)) or 0
 
         print("Database connection: OK")
         print("Schema check: OK")
@@ -55,7 +52,7 @@ def main() -> int:
     except Exception as exc:
         print("Database connection: FAILED")
         print(f"Reason: {exc}")
-        print("Check DATABASE_URL and confirm PostgreSQL is running.")
+        print("Check DATABASE_URL and confirm the configured database is available.")
         return 1
 
 

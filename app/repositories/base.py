@@ -10,7 +10,7 @@ class BackendRepository(ABC):
     """Backend-to-database contract.
 
     Production requests use the PostgreSQL implementation in
-    ``app.repositories.postgres.PostgresRepository``. Tests may replace it with
+    ``app.repositories.sqlalchemy_repository.SQLAlchemyRepository``. Tests may replace it with
     an in-memory implementation through FastAPI dependency overrides.
     """
 

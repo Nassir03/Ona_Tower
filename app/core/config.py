@@ -13,14 +13,14 @@ class Settings(BaseSettings):
     host: str = "0.0.0.0"
     port: int = 8400
     cors_origins: list[str] = [
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
+        "http://localhost:3020",
+        "http://127.0.0.1:3020",
     ]
     log_level: str = "INFO"
 
-    database_url: str = (
-        "postgresql+psycopg://ona_user:ona_password@localhost:5432/ona_towers"
-    )
+    # Zero-setup local development. Production can point DATABASE_URL at PostgreSQL.
+    database_url: str = "sqlite+pysqlite:///./ona_towers.db"
+    auto_init_db: bool = True
 
     enquiry_rate_limit_count: int = 5
     enquiry_rate_limit_window_seconds: int = 3600
@@ -41,6 +41,7 @@ class Settings(BaseSettings):
         env_file=".env",
         env_file_encoding="utf-8",
         case_sensitive=False,
+        extra="ignore",
     )
 
     @field_validator("cors_origins", mode="before")

@@ -1,39 +1,45 @@
 # ONA Towers Backend API Contract
 
-Base URL in development: `http://localhost:8400`
+Development backend: `http://127.0.0.1:8400`  
 API prefix: `/api`
 
 ## Health
 
-### GET /health
-Returns backend availability.
+### `GET /health`
+Returns application liveness.
+
+### `GET /health/database`
+Verifies that the configured SQL database can execute a query.
 
 ## Residences
 
-### GET /api/residences
-Returns the residence types needed for cards/showcases.
+### `GET /api/residences`
+Returns active residence typologies.
 
-### GET /api/residences/{slug}
-Returns residence detail data, gallery metadata and floor-plan metadata when supplied by the database adapter.
+### `GET /api/residences/{slug}`
+Returns a single residence and any associated media/floor-plan metadata.
 
-Supported initial slugs in the development adapter:
+Initial development slugs:
+
 - `2-bedroom`
 - `3-bedroom`
-- `penthouse`
+- `penthouse-3bed`
+- `penthouse-4bed`
 
-## Optional centrally managed content
+## Centrally managed content
 
-### GET /api/amenities
-### GET /api/smart-features
-### GET /api/location-points
+- `GET /api/amenities`
+- `GET /api/smart-features`
+- `GET /api/location-points`
 
-These return empty arrays in the development adapter until approved data is supplied by the database/content team.
+The local development database is automatically seeded with baseline verified content.
 
 ## Enquiries
 
-### POST /api/enquiries
+### `POST /api/enquiries`
 
 Request:
+
 ```json
 {
   "name": "Amina Hassan",
@@ -48,9 +54,10 @@ Request:
 }
 ```
 
-`company_website` is a honeypot field and must remain blank in the real frontend.
+`company_website` is the anti-bot honeypot and must remain blank in the real frontend.
 
 Allowed `enquiry_type` values:
+
 - `enquire_about_residence`
 - `request_floor_plans`
 - `schedule_viewing`
@@ -58,15 +65,17 @@ Allowed `enquiry_type` values:
 - `general`
 
 Success:
+
 ```json
 {
   "success": true,
-  "reference_number": "ONA-20260827-ABC123",
+  "reference_number": "ONA-20260830-ABC123",
   "message": "Thank you. Your enquiry has been received."
 }
 ```
 
 ## Standard error shape
+
 ```json
 {
   "error": {
@@ -78,6 +87,6 @@ Success:
 }
 ```
 
-## Database integration boundary
+## Database integration
 
-The API layer depends on `app.repositories.base.BackendRepository`. The active provider in `app/repositories/dependencies.py` creates a request-scoped `PostgresRepository`, which uses SQLAlchemy models and PostgreSQL. Tests can override the provider with the in-memory repository. Database credentials are supplied through environment variables and are not hard-coded into application logic.
+API routes depend on `BackendRepository`. The active provider creates a request-scoped `SQLAlchemyRepository`, which works with the database selected by `DATABASE_URL`: SQLite for the default local setup, or PostgreSQL for production/deployment.
