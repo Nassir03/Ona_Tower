@@ -1,84 +1,68 @@
-import React, { useCallback } from 'react';
-import { Header } from './components/Header';
-import { Hero } from './components/Hero';
-import { HeroReveal } from './components/HeroReveal';
-import { OnaIdea } from './components/OnaIdea';
-import { Development } from './components/Development';
-import { ResidencesIntro } from './components/ResidencesIntro';
-import { ResidenceSelector } from './components/ResidenceSelector';
-import { PenthousesSection } from './components/PenthousesSection';
-import { InteriorsStory } from './components/InteriorsStory';
-import { LifestyleStory } from './components/LifestyleStory';
-import { CommercialStory } from './components/CommercialStory';
-import { ArchitectureSection } from './components/ArchitectureSection';
-import { LocationSection } from './components/LocationSection';
-import { EnquirySection } from './components/EnquirySection';
+import React, { useEffect } from 'react';
 import { Footer } from './components/Footer';
+import { Header } from './components/Header';
+import { CommercialPage } from './pages/CommercialPage';
+import { DevelopmentPage } from './pages/DevelopmentPage';
+import { EnquirePage } from './pages/EnquirePage';
+import { HomePage } from './pages/HomePage';
+import { LifestylePage } from './pages/LifestylePage';
+import { LocationPage } from './pages/LocationPage';
+import { NotFoundPage } from './pages/NotFoundPage';
+import { ResidencesPage } from './pages/ResidencesPage';
+import { usePathname } from './routing';
+
+const pageTitles: Record<string, string> = {
+  '/': 'ONA Towers — Zanzibar | Ishii juu. Ona zaidi.',
+  '/residences': 'Residences | ONA Towers Zanzibar',
+  '/development': 'Development | ONA Towers Zanzibar',
+  '/lifestyle': 'Life at ONA | ONA Towers Zanzibar',
+  '/commercial': 'Commercial | ONA Towers Zanzibar',
+  '/location': 'Location | ONA Towers Zanzibar',
+  '/enquire': 'Enquire | ONA Towers Zanzibar',
+};
 
 export function App() {
-  const scrollToSection = useCallback((id: string) => {
-    const targetElement = document.getElementById(id);
-    if (targetElement) {
-      targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  }, []);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    document.title = pageTitles[pathname] || 'ONA Towers Zanzibar';
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, [pathname]);
+
+  let page: React.ReactNode;
+  switch (pathname) {
+    case '/':
+      page = <HomePage />;
+      break;
+    case '/residences':
+      page = <ResidencesPage />;
+      break;
+    case '/development':
+      page = <DevelopmentPage />;
+      break;
+    case '/lifestyle':
+      page = <LifestylePage />;
+      break;
+    case '/commercial':
+      page = <CommercialPage />;
+      break;
+    case '/location':
+      page = <LocationPage />;
+      break;
+    case '/enquire':
+      page = <EnquirePage />;
+      break;
+    default:
+      page = <NotFoundPage />;
+  }
 
   return (
     <div className="relative min-h-screen bg-[#080808] text-[#F7F5F0] overflow-x-hidden selection:bg-[#AE9A7C] selection:text-[#080808]">
-      {/* 00 Navigation Header */}
-      <Header onNavigate={scrollToSection} />
-
+      <Header />
       <main id="main-content" tabIndex={-1} className="focus:outline-none">
-        {/* 01 Arrival at ONA / Hero */}
-        <Hero onExploreClick={() => scrollToSection('hero-reveal')} />
-
-        {/* 02 First-Scroll Reveal / Wow Moment */}
-        <HeroReveal
-          onLiveClick={() => scrollToSection('residences')}
-          onLifeClick={() => scrollToSection('lifestyle')}
-          onWorkClick={() => scrollToSection('commercial')}
-        />
-
-        {/* 03 The ONA Idea (Live / Life / Work) */}
-        <OnaIdea
-          onExploreResidences={() => scrollToSection('residences')}
-          onExploreLifestyle={() => scrollToSection('lifestyle')}
-          onExploreCommercial={() => scrollToSection('commercial')}
-        />
-
-        {/* 04 The Development / Masterplan */}
-        <Development />
-
-        {/* 05 Residences Intro & Interior Teaser */}
-        <ResidencesIntro />
-
-        {/* 06 Choose Your Residence / Floor Plans */}
-        <ResidenceSelector />
-
-        {/* 07 Signature Penthouses */}
-        <PenthousesSection onEnquireClick={() => scrollToSection('enquiry')} />
-
-        {/* 08 Interiors Story */}
-        <InteriorsStory />
-
-        {/* 09 Life at ONA */}
-        <LifestyleStory />
-
-        {/* 10 Commercial / Work at ONA */}
-        <CommercialStory />
-
-        {/* 11 Architecture */}
-        <ArchitectureSection />
-
-        {/* 12 Location */}
-        <LocationSection />
-
-        {/* 13 Enquiry Form */}
-        <EnquirySection />
+        {page}
       </main>
-
-      {/* 14 Footer */}
-      <Footer onNavigate={scrollToSection} />
+      <Footer />
     </div>
   );
 }

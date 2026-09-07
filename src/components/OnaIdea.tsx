@@ -15,16 +15,25 @@ export const OnaIdea: React.FC<OnaIdeaProps> = ({
   return (
     <section
       id="ona-idea"
-      className="relative w-full bg-[#080808] py-24 sm:py-36 lg:py-48"
+      className="relative w-full bg-[#080808] pt-36 sm:pt-44 pb-24 sm:pb-36 lg:pb-48"
       aria-label="The ONA Idea — Live, Life, Work"
     >
       <div className="max-w-7xl mx-auto px-6 sm:px-10">
         {/* Section Marker */}
-        <div className="flex items-center space-x-3 mb-16 sm:mb-24">
+        <div className="flex items-center space-x-3 mb-8">
           <span className="w-8 h-[1px] bg-[#AE9A7C]" />
           <span className="font-sans text-xs font-semibold tracking-[0.24em] uppercase text-[#AE9A7C]">
             The Idea
           </span>
+        </div>
+
+        <div className="max-w-3xl mb-16 sm:mb-24">
+          <h1 className="font-display text-section-headline font-semibold text-[#F7F5F0] leading-none uppercase mb-5">
+            LIVE. LIFE. WORK.
+          </h1>
+          <p className="font-sans text-base sm:text-lg text-[#D7D0C5] leading-relaxed">
+            Explore how residential living, lifestyle functions and commercial spaces come together across the ONA Towers development.
+          </p>
         </div>
 
         {/* Scene 01: LIVE */}

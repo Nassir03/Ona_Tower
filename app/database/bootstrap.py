@@ -3,7 +3,7 @@ import logging
 from sqlalchemy import select
 
 from app.database.base import Base
-from app.database.models import Amenity, LocationPoint, Residence, SmartFeature
+from app.database.models import Amenity, FloorPlan, LocationPoint, Residence, ResidenceMedia, SmartFeature
 from app.database.session import SessionLocal, engine
 
 logger = logging.getLogger(__name__)
@@ -59,6 +59,64 @@ RESIDENCES = [
     },
 ]
 
+FLOOR_PLANS = [
+    {
+        "residence_slug": "2-bedroom",
+        "plan_name": "02 Bedroom Residence Plan",
+        "file_url": "/ona-assets/residences/two-bedroom-plan-approx-203sqm.png",
+        "preview_image_url": "/ona-assets/residences/two-bedroom-plan-approx-203sqm.png",
+    },
+    {
+        "residence_slug": "3-bedroom",
+        "plan_name": "03 Bedroom Residence Plan",
+        "file_url": "/ona-assets/residences/three-bedroom-plan-approx-236sqm.jpg",
+        "preview_image_url": "/ona-assets/residences/three-bedroom-plan-approx-236sqm.jpg",
+    },
+    {
+        "residence_slug": "penthouse-3bed",
+        "plan_name": "03 Bedroom Signature Penthouse Plan",
+        "file_url": "/ona-assets/residences/penthouse-3-bedroom-approx-416sqm.jpg",
+        "preview_image_url": "/ona-assets/residences/penthouse-3-bedroom-approx-416sqm.jpg",
+    },
+    {
+        "residence_slug": "penthouse-4bed",
+        "plan_name": "04 Bedroom Signature Penthouse Plan",
+        "file_url": "/ona-assets/residences/penthouse-4-bedroom-approx-482sqm.png",
+        "preview_image_url": "/ona-assets/residences/penthouse-4-bedroom-approx-482sqm.png",
+    },
+]
+
+RESIDENCE_MEDIA = [
+    {
+        "residence_slug": "2-bedroom",
+        "media_type": "image",
+        "url": "/ona-assets/residences/two-bedroom-plan-approx-203sqm.png",
+        "alt_text": "Two-bedroom residence project drawing",
+        "display_order": 1,
+    },
+    {
+        "residence_slug": "3-bedroom",
+        "media_type": "image",
+        "url": "/ona-assets/residences/three-bedroom-plan-approx-236sqm.jpg",
+        "alt_text": "Three-bedroom residence project drawing",
+        "display_order": 1,
+    },
+    {
+        "residence_slug": "penthouse-3bed",
+        "media_type": "image",
+        "url": "/ona-assets/residences/penthouse-3-bedroom-approx-416sqm.jpg",
+        "alt_text": "Three-bedroom signature penthouse project drawing",
+        "display_order": 1,
+    },
+    {
+        "residence_slug": "penthouse-4bed",
+        "media_type": "image",
+        "url": "/ona-assets/residences/penthouse-4-bedroom-approx-482sqm.png",
+        "alt_text": "Four-bedroom signature penthouse project drawing",
+        "display_order": 1,
+    },
+]
+
 AMENITIES = [
     {"name": "Pool", "category": "Lifestyle", "description": "Pool on the terrace / lifestyle level.", "display_order": 1},
     {"name": "Restaurant & Outdoor Dining", "category": "Lifestyle", "description": "Restaurant and outdoor restaurant on the terrace / lifestyle level.", "display_order": 2},
@@ -88,6 +146,49 @@ def initialize_database() -> None:
     Base.metadata.create_all(bind=engine)
     with SessionLocal() as db:
         _seed_if_missing(db, Residence, RESIDENCES, key="slug")
+        db.flush()
+
+        for row in FLOOR_PLANS:
+            residence = db.scalar(select(Residence).where(Residence.slug == row["residence_slug"]))
+            if residence is None:
+                continue
+            existing = db.scalar(
+                select(FloorPlan).where(
+                    FloorPlan.residence_id == residence.id,
+                    FloorPlan.plan_name == row["plan_name"],
+                )
+            )
+            if existing is None:
+                db.add(
+                    FloorPlan(
+                        residence_id=residence.id,
+                        plan_name=row["plan_name"],
+                        file_url=row["file_url"],
+                        preview_image_url=row["preview_image_url"],
+                    )
+                )
+
+        for row in RESIDENCE_MEDIA:
+            residence = db.scalar(select(Residence).where(Residence.slug == row["residence_slug"]))
+            if residence is None:
+                continue
+            existing = db.scalar(
+                select(ResidenceMedia).where(
+                    ResidenceMedia.residence_id == residence.id,
+                    ResidenceMedia.url == row["url"],
+                )
+            )
+            if existing is None:
+                db.add(
+                    ResidenceMedia(
+                        residence_id=residence.id,
+                        media_type=row["media_type"],
+                        url=row["url"],
+                        alt_text=row["alt_text"],
+                        display_order=row["display_order"],
+                    )
+                )
+
         _seed_if_missing(db, Amenity, AMENITIES)
         _seed_if_missing(db, SmartFeature, SMART_FEATURES)
         _seed_if_missing(db, LocationPoint, LOCATION_POINTS)

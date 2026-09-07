@@ -6,7 +6,7 @@ export const CommercialStory: React.FC = () => {
   return (
     <section
       id="commercial"
-      className="relative w-full bg-[#080808] text-[#F7F5F0] py-24 sm:py-36 lg:py-48 border-t border-[#171716]"
+      className="relative w-full bg-[#080808] text-[#F7F5F0] pt-36 sm:pt-44 pb-24 sm:pb-36 lg:pb-48 border-t border-[#171716]"
       aria-label="Commercial and Workspace at ONA"
     >
       <div className="max-w-7xl mx-auto px-6 sm:px-10">
@@ -19,12 +19,12 @@ export const CommercialStory: React.FC = () => {
         </div>
 
         <div className="max-w-3xl mb-16 sm:mb-24">
-          <h2
+          <h1
             id="commercial-headline"
             className="font-display text-section-headline font-semibold text-[#F7F5F0] leading-none uppercase mb-4"
           >
             WORK AT ONA.
-          </h2>
+          </h1>
           <p className="font-sans text-base sm:text-lg text-[#D7D0C5] leading-relaxed font-normal">
             A separate commercial / service building with a ground floor for supermarket and work functions, a dedicated office level, and a terrace lifestyle level including restaurant, pool, and gym.
           </p>

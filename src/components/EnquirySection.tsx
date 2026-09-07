@@ -1,7 +1,8 @@
-import React, { FormEvent, useState } from 'react';
+import React, { FormEvent, useEffect, useState } from 'react';
 import { CheckCircle2, Loader2 } from 'lucide-react';
 import { submitEnquiry, type EnquiryPayload, type EnquiryType } from '../api/enquiries';
 import { ONA_IMAGES } from '../data/images';
+import { listResidences, type ResidenceSummaryApi } from '../api/residences';
 
 const initialForm: EnquiryPayload = {
   name: '',
@@ -15,11 +16,33 @@ const initialForm: EnquiryPayload = {
   company_website: '',
 };
 
+const fallbackResidenceOptions: ResidenceSummaryApi[] = [
+  { id: '2-bedroom', slug: '2-bedroom', name: '02 Bedroom Residence', type: '2 Bedroom', bedrooms: 2, size_m2: 203, status: 'active', display_order: 1 },
+  { id: '3-bedroom', slug: '3-bedroom', name: '03 Bedroom Residence', type: '3 Bedroom', bedrooms: 3, size_m2: 236, status: 'active', display_order: 2 },
+  { id: 'penthouse-3bed', slug: 'penthouse-3bed', name: '03 Bedroom Signature Penthouse', type: 'Penthouse', bedrooms: 3, size_m2: 416, status: 'active', display_order: 3 },
+  { id: 'penthouse-4bed', slug: 'penthouse-4bed', name: '04 Bedroom Signature Penthouse', type: 'Penthouse', bedrooms: 4, size_m2: 482, status: 'active', display_order: 4 },
+];
+
 export const EnquirySection: React.FC = () => {
   const [form, setForm] = useState<EnquiryPayload>(initialForm);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [reference, setReference] = useState('');
+  const [residenceOptions, setResidenceOptions] = useState<ResidenceSummaryApi[]>(fallbackResidenceOptions);
+
+  useEffect(() => {
+    let active = true;
+    listResidences()
+      .then((items) => {
+        if (active && items.length) setResidenceOptions(items);
+      })
+      .catch(() => {
+        // Keep the verified residence options available if the content service is offline.
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const updateField = <K extends keyof EnquiryPayload>(key: K, value: EnquiryPayload[K]) => {
     setForm((current) => ({ ...current, [key]: value }));
@@ -48,7 +71,7 @@ export const EnquirySection: React.FC = () => {
   };
 
   return (
-    <section id="enquiry" className="relative w-full bg-[#080808] text-[#F7F5F0] py-24 sm:py-36 lg:py-48 border-t border-[#171716] overflow-hidden" aria-label="Register interest for ONA Towers">
+    <section id="enquiry" className="relative w-full bg-[#080808] text-[#F7F5F0] pt-36 sm:pt-44 pb-24 sm:pb-36 lg:pb-48 border-t border-[#171716] overflow-hidden" aria-label="Register interest for ONA Towers">
       <div className="absolute inset-0 pointer-events-none opacity-20">
         <img src={ONA_IMAGES.enquiryBackground.url} alt="" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-[#080808]/80" />
@@ -62,7 +85,7 @@ export const EnquirySection: React.FC = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
           <div className="lg:col-span-5 lg:sticky lg:top-32">
-            <h2 className="font-display text-section-headline font-semibold leading-none uppercase mb-4">EXPERIENCE ONA.</h2>
+            <h1 className="font-display text-section-headline font-semibold leading-none uppercase mb-4">EXPERIENCE ONA.</h1>
             <p className="font-display italic text-2xl sm:text-3xl text-[#AE9A7C] mb-6">Register your interest.</p>
             <p className="font-sans text-sm sm:text-base text-[#D7D0C5] leading-relaxed max-w-md">
               Tell us what you are interested in and the sales team can follow up with the relevant residence information.
@@ -115,10 +138,9 @@ export const EnquirySection: React.FC = () => {
                   <Field label="Residence Interest">
                     <select value={form.residence_interest || ''} onChange={(e) => updateField('residence_interest', e.target.value)} className="form-input appearance-none">
                       <option value="">Select residence</option>
-                      <option value="2-bedroom">2 Bedroom Residence</option>
-                      <option value="3-bedroom">3 Bedroom Residence</option>
-                      <option value="penthouse-3bed">3 Bedroom Penthouse</option>
-                      <option value="penthouse-4bed">4 Bedroom Penthouse</option>
+                      {residenceOptions.map((residence) => (
+                        <option key={residence.slug} value={residence.slug}>{residence.name}</option>
+                      ))}
                     </select>
                   </Field>
                   <Field label="I Would Like To">

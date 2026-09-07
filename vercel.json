@@ -1,0 +1,10 @@
+{
+  "rewrites": [
+    { "source": "/residences", "destination": "/index.html" },
+    { "source": "/development", "destination": "/index.html" },
+    { "source": "/lifestyle", "destination": "/index.html" },
+    { "source": "/commercial", "destination": "/index.html" },
+    { "source": "/location", "destination": "/index.html" },
+    { "source": "/enquire", "destination": "/index.html" }
+  ]
+}

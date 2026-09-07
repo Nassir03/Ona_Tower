@@ -21,12 +21,12 @@ export const ResidencesIntro: React.FC = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-baseline mb-16 sm:mb-20">
             <div className="lg:col-span-8">
-              <h2
+              <h1
                 id="residences-headline"
                 className="font-display text-section-headline font-semibold text-[#F7F5F0] leading-none uppercase"
               >
                 LIVE ABOVE.
-              </h2>
+              </h1>
             </div>
             <div className="lg:col-span-4">
               <p className="font-display italic text-2xl sm:text-3xl text-[#D7D0C5] font-normal">

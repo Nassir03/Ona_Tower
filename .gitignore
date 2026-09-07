@@ -1,20 +1,22 @@
+# Frontend
 node_modules/
-build/
 dist/
 coverage/
-.DS_Store
 *.log
-.env*
-!.env.example
 
+# Backend / Python
+.venv/
 .venv*/
 __pycache__/
 *.py[cod]
 .pytest_cache/
+ona_towers.db
+*.db-journal
+
+# Environment / editor / OS
 .env
-.DS_Store
+.env.*
+!.env.example
 .vscode/
-.venv310/
-
-node_modules
-
+.idea/
+.DS_Store

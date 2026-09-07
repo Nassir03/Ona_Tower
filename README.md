@@ -1,14 +1,41 @@
 # ONA Towers — Full Stack Website
 
-A polished ONA Towers marketing website with a **Vite + React** frontend and **FastAPI + SQLAlchemy** backend.
+ONA Towers is a full-stack marketing website with a **Vite + React** frontend and a **FastAPI + SQLAlchemy** backend.
 
-## Final local ports
+The project now has one clear frontend implementation in `src/` and one backend implementation in `app/`. The older duplicate Next.js frontend has been removed from the runnable source tree.
+
+## Local ports
 
 - Frontend: **http://127.0.0.1:3020**
 - Backend: **http://127.0.0.1:8400**
 - API docs: **http://127.0.0.1:8400/docs**
 
-The frontend enquiry form is connected to `POST /api/enquiries` on the backend.
+## Frontend pages
+
+The Home page is intentionally concise. Detailed content is separated into dedicated routes:
+
+- `/` — Home / project overview
+- `/residences` — residence typologies, penthouses and interiors
+- `/development` — ONA idea, masterplan, connected-living feature and architecture
+- `/lifestyle` — lifestyle amenities
+- `/commercial` — commercial / service building
+- `/location` — Zanzibar location information
+- `/enquire` — enquiry form
+
+The navigation and footer use real URL routes instead of scrolling through one oversized Home page.
+
+## Frontend ↔ backend connections
+
+The active frontend is connected to these backend endpoints:
+
+- `GET /api/residences`
+- `GET /api/residences/{slug}`
+- `GET /api/amenities`
+- `GET /api/smart-features`
+- `GET /api/location-points`
+- `POST /api/enquiries`
+
+Verified local project content remains as a graceful display fallback for the read-only marketing sections if the API is temporarily unavailable. Enquiry submission still requires the backend.
 
 ## Requirements
 
@@ -17,7 +44,7 @@ The frontend enquiry form is connected to `POST /api/enquiries` on the backend.
 - Python 3.10–3.13
 - pip / virtual environment support
 
-PostgreSQL is **optional for local development**. The project defaults to SQLite so it can run immediately. Production can use PostgreSQL by setting `DATABASE_URL`.
+PostgreSQL is optional for local development. The project defaults to SQLite so it can run immediately. Production can use PostgreSQL through `DATABASE_URL`.
 
 ## First-time setup
 
@@ -36,8 +63,6 @@ Windows PowerShell:
 ```powershell
 Copy-Item .env.example .env
 ```
-
-The provided defaults already use frontend port `3020`, backend port `8400`, and a local SQLite database.
 
 ### 2. Install backend dependencies
 
@@ -65,39 +90,29 @@ pip install -r requirements.txt
 npm install
 ```
 
-## Run the project
+## Run locally
 
-Use **two terminals** from the project root.
+Use two terminals from the project root.
 
-### Terminal 1 — backend on 8400
-
-Activate the Python virtual environment, then run:
+### Terminal 1 — backend
 
 ```bash
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8400
 ```
 
-On first development startup, the local SQLite schema and baseline content are created automatically.
-
 Verify:
 
-```text
-http://127.0.0.1:8400/health
-http://127.0.0.1:8400/health/database
-http://127.0.0.1:8400/docs
-```
+- `http://127.0.0.1:8400/health`
+- `http://127.0.0.1:8400/health/database`
+- `http://127.0.0.1:8400/docs`
 
-### Terminal 2 — frontend on 3020
+### Terminal 2 — frontend
 
 ```bash
 npm run dev
 ```
 
-Open:
-
-```text
-http://127.0.0.1:3020
-```
+Open `http://127.0.0.1:3020`.
 
 ## Tests and checks
 
@@ -119,46 +134,43 @@ Frontend production build:
 npm run build
 ```
 
+## Static hosting route fallback
+
+Because the frontend uses URL routes, static hosting must send unknown frontend paths to `index.html`.
+
+This repository includes:
+
+- `public/_redirects` for hosts that support the redirects file format (including Cloudflare Pages / Netlify-style hosting)
+- `vercel.json` for Vercel rewrites
+
 ## PostgreSQL option
 
-For production or PostgreSQL-based development, set this in `.env`:
+Set this in `.env` for PostgreSQL:
 
 ```env
 DATABASE_URL=postgresql+psycopg://ona_user:YOUR_PASSWORD@localhost:5432/ona_towers
 AUTO_INIT_DB=false
 ```
 
-Then create the database and apply migrations:
+Then run:
 
 ```bash
 alembic upgrade head
 python -m app.database.seed
 ```
 
-For production, use a strong password and managed database credentials.
-
-## Main backend endpoints
-
-- `GET /`
-- `GET /health`
-- `GET /health/database`
-- `GET /api/residences`
-- `GET /api/residences/{slug}`
-- `GET /api/amenities`
-- `GET /api/smart-features`
-- `GET /api/location-points`
-- `POST /api/enquiries`
-
 ## Project layout
 
 ```text
-src/                 Active Vite/React frontend
-public/              ONA image assets
+src/                 Active Vite + React frontend
+src/pages/           Frontend route-level pages
+src/components/      Reusable frontend sections/components
+src/api/             Frontend API client modules
+public/              ONA image assets and SPA redirect file
 app/                  FastAPI backend
-app/database/         SQLAlchemy database layer and local bootstrap
+app/database/         SQLAlchemy models, local bootstrap and DB utilities
 app/repositories/     Data access layer
-migrations/           Alembic migrations for production databases
+migrations/           Alembic migrations
+scripts/              Local run helpers
 tests/                Backend API tests
 ```
-
-The obsolete duplicate Next.js frontend prototype was removed from the runnable project so there is one clear frontend implementation and one backend implementation.

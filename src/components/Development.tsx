@@ -1,11 +1,34 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { MASTERPLAN_HOTSPOTS } from '../data/residences';
 import { ONA_IMAGES } from '../data/images';
 import { MasterplanHotspot } from '../types';
 import { ONA_FACTS } from '../data/projectFacts';
+import { listSmartFeatures, type SmartFeatureApi } from '../api/content';
 
 export const Development: React.FC = () => {
   const [selectedHotspot, setSelectedHotspot] = useState<MasterplanHotspot>(MASTERPLAN_HOTSPOTS[0]);
+  const [smartFeatures, setSmartFeatures] = useState<SmartFeatureApi[]>([
+    {
+      id: 'integrated-mixed-use-living',
+      name: 'Integrated mixed-use living',
+      benefit_statement: 'Residences, lifestyle facilities and commercial functions are brought together within one development.',
+      display_order: 1,
+    },
+  ]);
+
+  useEffect(() => {
+    let active = true;
+    listSmartFeatures()
+      .then((items) => {
+        if (active) setSmartFeatures(items);
+      })
+      .catch(() => {
+        // The verified masterplan remains available if the API is offline.
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   return (
     <section
@@ -140,6 +163,23 @@ export const Development: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {smartFeatures.length > 0 && (
+          <div className="mt-12 sm:mt-16 border-t border-[#D7D0C5] pt-8">
+            <div className="flex items-center space-x-3 mb-6">
+              <span className="w-8 h-px bg-[#AE9A7C]" />
+              <span className="font-sans text-[11px] font-semibold tracking-[0.2em] uppercase text-[#AE9A7C]">Connected living</span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {smartFeatures.map((feature) => (
+                <article key={feature.id} className="border border-[#D7D0C5] bg-[#FFFDF8] p-6">
+                  <h3 className="font-display text-2xl font-semibold text-[#171716]">{feature.name}</h3>
+                  <p className="font-sans text-sm text-[#171716]/75 leading-relaxed mt-3">{feature.benefit_statement}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );
