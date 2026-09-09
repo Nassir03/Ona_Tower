@@ -8,6 +8,7 @@
     "build": "vite build",
     "preview": "vite preview --host 0.0.0.0 --port 3020",
     "check": "vite build",
+    "lint": "tsc --noEmit",
     "backend": "uvicorn app.main:app --reload --host 0.0.0.0 --port 8400"
   },
   "dependencies": {
