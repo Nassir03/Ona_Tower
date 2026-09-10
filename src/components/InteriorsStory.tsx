@@ -5,34 +5,35 @@ export const InteriorsStory: React.FC = () => {
   return (
     <section
       id="interiors"
-      className="relative w-full bg-[#080808] text-[#F7F5F0] py-24 sm:py-36 lg:py-48 border-t border-[#171716]"
+      className="relative w-full bg-[#0A131F] text-[#F8F6F2] py-24 sm:py-36 lg:py-48 border-t border-[#193659]/40"
       aria-label="Interior Architecture and Atmosphere"
     >
       <div className="max-w-7xl mx-auto px-6 sm:px-10">
         {/* Section Marker */}
         <div className="flex items-center space-x-3 mb-6">
-          <span className="w-8 h-[1px] bg-[#AE9A7C]" />
-          <span className="font-sans text-xs font-semibold tracking-[0.24em] uppercase text-[#AE9A7C]">
+          <span className="w-8 h-[1px] bg-[#A58A71]" />
+          <span className="font-sans text-xs font-semibold tracking-[0.24em] uppercase text-[#A58A71]">
             Interiors
           </span>
         </div>
 
         {/* Section Main Headline */}
         <div className="max-w-3xl mb-20 sm:mb-32">
+          <span className="font-script text-3xl sm:text-4xl text-[#A58A71] block mb-2">Space to Breathe</span>
           <h2
             id="interiors-headline"
-            className="font-display text-section-headline font-semibold text-[#F7F5F0] leading-none uppercase mb-6"
+            className="font-display text-section-headline font-light text-[#FFFFFF] leading-none uppercase mb-6 tracking-tight"
           >
-            SPACE TO BREATHE.
+            LIGHT, SPACE & HARMONY.
           </h2>
-          <p className="font-sans text-base sm:text-lg text-[#D7D0C5] leading-relaxed font-normal max-w-2xl">
-            Interior visualizations.
+          <p className="font-sans text-base sm:text-lg text-[#D5CFC7] leading-relaxed font-light max-w-2xl">
+            Official interior visualizations from the ONA Residences collection. Crafted with neutral stones, warm timbers, and floor-to-ceiling vistas over Zanzibar.
           </p>
         </div>
 
         {/* Scene 01: The Living Space */}
         <div className="mb-24 sm:mb-36">
-          <div className="relative aspect-[16/9] sm:aspect-[21/9] overflow-hidden bg-[#171716] group mb-8">
+          <div className="relative aspect-[16/9] sm:aspect-[21/9] overflow-hidden bg-[#102035] rounded-sm border border-[#193659] group mb-8 shadow-2xl">
             <img
               src={ONA_IMAGES.interiorLiving.url}
               alt={ONA_IMAGES.interiorLiving.alt}
@@ -40,23 +41,23 @@ export const InteriorsStory: React.FC = () => {
               className="w-full h-full object-cover object-center transition-transform duration-1000 group-hover:scale-103"
               referrerPolicy="no-referrer"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#080808]/70 via-transparent to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0A131F]/80 via-transparent to-transparent pointer-events-none" />
             <div className="absolute bottom-6 left-6 sm:bottom-8 sm:left-10 z-10">
-              <span className="font-sans text-xs font-semibold tracking-[0.2em] text-[#AE9A7C] uppercase block mb-1">
-                01 / Living
+              <span className="font-sans text-xs font-semibold tracking-[0.2em] text-[#A58A71] uppercase block mb-1">
+                01 / 2-Bedroom Residence
               </span>
-              <p className="font-display text-2xl sm:text-3xl text-[#F7F5F0]">
-                Living & Reception Space
+              <p className="font-display text-2xl sm:text-3xl text-[#FFFFFF] font-light">
+                Living & Reception Salon
               </p>
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
             <div className="md:col-span-8">
-              <p className="font-sans text-sm sm:text-base text-[#D7D0C5] leading-relaxed font-normal">
-                Interior visualization of the living and reception space.
+              <p className="font-sans text-sm sm:text-base text-[#D5CFC7] leading-relaxed font-light">
+                Spacious open-plan living rooms that welcome natural ocean breezes and daylight, framed by flowing private balconies.
               </p>
             </div>
-            <div className="md:col-span-4 flex items-center md:justify-end text-xs font-sans tracking-widest text-[#AE9A7C] uppercase font-semibold">
+            <div className="md:col-span-4 flex items-center md:justify-end text-xs font-sans tracking-widest text-[#A58A71] uppercase font-semibold">
               <span>Light &middot; Proportion &middot; Space</span>
             </div>
           </div>
@@ -66,7 +67,7 @@ export const InteriorsStory: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start mb-24 sm:mb-36">
           {/* Left Column: Light & Atmosphere Scene */}
           <div className="lg:col-span-6 space-y-6">
-            <div className="relative aspect-[4/3] overflow-hidden bg-[#171716] group">
+            <div className="relative aspect-[4/3] overflow-hidden bg-[#102035] rounded-sm border border-[#193659] group shadow-2xl">
               <img
                 src={ONA_IMAGES.interiorOceanView.url}
                 alt={ONA_IMAGES.interiorOceanView.alt}
@@ -74,24 +75,24 @@ export const InteriorsStory: React.FC = () => {
                 className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
                 referrerPolicy="no-referrer"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#080808]/60 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0A131F]/70 via-transparent to-transparent pointer-events-none" />
               <div className="absolute bottom-6 left-6 z-10">
-                <span className="font-sans text-xs font-semibold tracking-[0.2em] text-[#AE9A7C] uppercase block">
-                  02 / Atmosphere
+                <span className="font-sans text-xs font-semibold tracking-[0.2em] text-[#A58A71] uppercase block">
+                  02 / 3-Bedroom Residence
                 </span>
-                <p className="font-display text-xl text-[#F7F5F0]">
-                  Interior Visualization
+                <p className="font-display text-xl text-[#FFFFFF] font-light">
+                  Panoramic Horizon Living
                 </p>
               </div>
             </div>
-            <p className="font-sans text-sm text-[#D7D0C5] leading-relaxed font-normal">
-              Living-space visualization.
+            <p className="font-sans text-sm text-[#D5CFC7] leading-relaxed font-light">
+              Generous floorplans opening to panoramic views across the island landscape toward the turquoise Indian Ocean.
             </p>
           </div>
 
           {/* Right Column: Culinary & Dining (Offset) */}
           <div className="lg:col-span-6 space-y-6 lg:pt-16">
-            <div className="relative aspect-[4/3] overflow-hidden bg-[#171716] group">
+            <div className="relative aspect-[4/3] overflow-hidden bg-[#102035] rounded-sm border border-[#193659] group shadow-2xl">
               <img
                 src={ONA_IMAGES.interiorKitchen.url}
                 alt={ONA_IMAGES.interiorKitchen.alt}
@@ -99,18 +100,18 @@ export const InteriorsStory: React.FC = () => {
                 className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
                 referrerPolicy="no-referrer"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#080808]/60 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0A131F]/70 via-transparent to-transparent pointer-events-none" />
               <div className="absolute bottom-6 left-6 z-10">
-                <span className="font-sans text-xs font-semibold tracking-[0.2em] text-[#AE9A7C] uppercase block">
-                  03 / Culinary
+                <span className="font-sans text-xs font-semibold tracking-[0.2em] text-[#A58A71] uppercase block">
+                  03 / Open-Plan Living & Dining
                 </span>
-                <p className="font-display text-xl text-[#F7F5F0]">
-                  Kitchen & Dining Area
+                <p className="font-display text-xl text-[#FFFFFF] font-light">
+                  Kitchen & Entertaining Space
                 </p>
               </div>
             </div>
-            <p className="font-sans text-sm text-[#D7D0C5] leading-relaxed font-normal">
-              Kitchen and dining visualization.
+            <p className="font-sans text-sm text-[#D5CFC7] leading-relaxed font-light">
+              Contemporary kitchens with sleek cabinetry, integrated islands, and premium surfaces designed for effortless hosting.
             </p>
           </div>
         </div>
@@ -118,7 +119,7 @@ export const InteriorsStory: React.FC = () => {
         {/* Scene 04: Bedroom Sanctuary */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
           <div className="lg:col-span-7">
-            <div className="relative aspect-[16/10] overflow-hidden bg-[#171716] group">
+            <div className="relative aspect-[16/10] overflow-hidden bg-[#102035] rounded-sm border border-[#193659] group shadow-2xl">
               <img
                 src={ONA_IMAGES.interiorBedroom.url}
                 alt={ONA_IMAGES.interiorBedroom.alt}
@@ -126,31 +127,31 @@ export const InteriorsStory: React.FC = () => {
                 className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
                 referrerPolicy="no-referrer"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#080808]/60 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0A131F]/70 via-transparent to-transparent pointer-events-none" />
               <div className="absolute bottom-6 left-6 z-10">
-                <span className="font-sans text-xs font-semibold tracking-[0.2em] text-[#AE9A7C] uppercase block">
-                  04 / Bedroom
+                <span className="font-sans text-xs font-semibold tracking-[0.2em] text-[#A58A71] uppercase block">
+                  04 / Suite Retreat
                 </span>
-                <p className="font-display text-xl text-[#F7F5F0]">
-                  Bedroom Space
+                <p className="font-display text-xl text-[#FFFFFF] font-light">
+                  Primary Bedroom Sanctuary
                 </p>
               </div>
             </div>
           </div>
 
           <div className="lg:col-span-5 lg:pl-6 space-y-6">
-            <span className="font-sans text-xs font-semibold tracking-[0.2em] text-[#AE9A7C] uppercase block">
+            <span className="font-sans text-xs font-semibold tracking-[0.2em] text-[#A58A71] uppercase block">
               Restful Living
             </span>
-            <h3 className="font-display text-3xl sm:text-4xl text-[#F7F5F0] font-semibold leading-tight">
+            <h3 className="font-display text-3xl sm:text-4xl text-[#FFFFFF] font-light leading-tight">
               Calm and private retreats.
             </h3>
-            <p className="font-sans text-sm text-[#D7D0C5] leading-relaxed font-normal">
-              Bedroom visualization.
+            <p className="font-sans text-sm text-[#D5CFC7] leading-relaxed font-light">
+              Bedrooms conceived as quiet sanctuaries with natural finishes, warm illumination, and custom acoustic layering.
             </p>
             <div className="pt-2">
-              <span className="font-sans text-xs tracking-widest uppercase text-[#AE9A7C] font-semibold block">
-                Interior Visualization
+              <span className="font-script text-2xl text-[#A58A71] block">
+                Zanzibar Living Above
               </span>
             </div>
           </div>

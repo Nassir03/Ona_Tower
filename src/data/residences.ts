@@ -18,11 +18,16 @@ export const MASTERPLAN_HOTSPOTS: MasterplanHotspot[] = [
 ];
 
 export const LIFESTYLE_SCENES: LifestyleScene[] = [
-  { id: 'pool', number: '01', title: 'Pool', subtitle: 'Space to slow down', description: 'Pool on the terrace / lifestyle level.', imageKey: 'lifestylePool', highlight: 'POOL' },
-  { id: 'dining', number: '02', title: 'Restaurant & Outdoor Dining', subtitle: 'Dining above the everyday', description: 'Restaurant and outdoor restaurant on the terrace / lifestyle level.', imageKey: 'lifestyleRestaurant', highlight: 'RESTAURANT & TERRACE' },
-  { id: 'gym', number: '03', title: 'Gym', subtitle: 'Space for movement', description: 'Gym on the terrace / lifestyle level.', imageKey: 'lifestyleGym', highlight: 'GYM' },
-  { id: 'coffee', number: '04', title: 'Coffee & Work Area', subtitle: 'A place to meet, work or pause', description: 'Coffee / work area on the ground floor.', imageKey: 'lifestyleCoffee', highlight: 'COFFEE & WORK' },
-  { id: 'supermarket', number: '05', title: 'Supermarket', subtitle: 'Everyday convenience', description: 'Supermarket on the ground floor.', imageKey: 'commercialMarket', highlight: 'SUPERMARKET' },
+  { id: 'coffee', number: '01', title: 'Coffee & Bakery', subtitle: 'Everyday Rituals', description: 'Morning espresso and fresh artisanal bakery right within Tower A.', imageKey: 'lifestyleCoffee', highlight: 'TOWER A · LIVE' },
+  { id: 'social-lounge', number: '02', title: 'Social Lounge', subtitle: 'Connection & Pleasure', description: 'An elegant gathering space shaped around the rituals of connection and hospitality.', imageKey: 'amenitySocialLounge', highlight: 'TOWER A · LIVE' },
+  { id: 'beauty-studio', number: '03', title: 'Beauty Studio', subtitle: 'Dedicated Wellbeing', description: 'Afternoon treatments and self-care thoughtfully placed close to home.', imageKey: 'amenityBeautyStudio', highlight: 'TOWER A · LIVE' },
+  { id: 'mini-market', number: '04', title: 'Mini Market', subtitle: 'Effortless Convenience', description: 'Curated daily essentials and fresh provisions right at your doorstep.', imageKey: 'amenityMiniMarket', highlight: 'TOWER A · LIVE' },
+  { id: 'art-salon', number: '05', title: 'Art Salon', subtitle: 'Culture & Thought', description: 'Art becomes part of daily life in Tower B with curated exhibitions and salon spaces.', imageKey: 'amenityArtSalon', highlight: 'TOWER B · BEYOND' },
+  { id: 'study-lounge', number: '06', title: 'Study Lounge', subtitle: 'Curiosity & Focus', description: 'Quiet spaces inviting reading, deep thought, and executive focus.', imageKey: 'amenityStudyLounge', highlight: 'TOWER B · BEYOND' },
+  { id: 'concierge', number: '07', title: 'Concierge Desk', subtitle: 'Seamless Hospitality', description: 'Personalized resident assistance, travel services, and welcoming reception.', imageKey: 'amenityConcierge', highlight: 'TOWER B · BEYOND' },
+  { id: 'kids-club', number: '08', title: 'Kids’ Club', subtitle: 'Family & Growth', description: 'Dedicated playful spaces giving families room to connect, learn, and grow.', imageKey: 'amenityKidsClub', highlight: 'TOWER B · BEYOND' },
+  { id: 'pool', number: '09', title: 'Terrace Pool', subtitle: 'Space to slow down', description: 'Reflecting pools and swimming terrace overlooking the Zanzibar horizon.', imageKey: 'lifestylePool', highlight: 'ONA HOUSE' },
+  { id: 'dining', number: '10', title: 'Restaurant & Outdoor Dining', subtitle: 'Dining above the everyday', description: 'Panoramic dining experience framed by ocean light and breezes.', imageKey: 'lifestyleRestaurant', highlight: 'ONA HOUSE' },
 ];
 
 export const COMMERCIAL_MODULES: CommercialModule[] = [

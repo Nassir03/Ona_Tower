@@ -11,7 +11,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreClick }) => {
   return (
     <section
       id="hero"
-      className="relative w-full h-[100svh] min-h-[640px] flex items-end overflow-hidden bg-[#080808]"
+      className="relative w-full h-[100svh] min-h-[640px] flex items-end overflow-hidden bg-[#0A131F]"
       aria-label="Arrival at ONA Towers"
     >
       {/* Background Architectural Human-level Arrival Image */}
@@ -21,66 +21,76 @@ export const Hero: React.FC<HeroProps> = ({ onExploreClick }) => {
           alt={ONA_IMAGES.heroArrival.alt}
           fetchPriority="high"
           loading="eager"
-          className="w-full h-full object-cover object-center scale-[1.03] animate-[fadeInScale_1.4s_cubic-bezier(0.16,1,0.3,1)_forwards]"
+          className="w-full h-full object-cover object-center scale-[1.02] animate-[fadeInScale_1.4s_cubic-bezier(0.16,1,0.3,1)_forwards]"
           referrerPolicy="no-referrer"
         />
 
-        {/* Sophisticated Local Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#080808]/95 via-[#080808]/40 to-transparent sm:w-3/4 md:w-3/5" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#080808]/80 via-transparent to-transparent hidden sm:block" />
+        {/* Sophisticated Local Navy Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0A131F] via-[#0A131F]/50 to-transparent sm:w-3/4 md:w-3/5" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0A131F]/80 via-transparent to-transparent hidden sm:block" />
       </div>
 
       {/* Hero Content — Lower-Left Editorial Composition */}
       <div className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-10 pb-12 sm:pb-16 lg:pb-20">
         <div className="max-w-2xl">
-          {/* Location */}
-          <div className="overflow-hidden mb-3 sm:mb-4">
+          {/* Developer & Location Badge */}
+          <div className="overflow-hidden mb-3 sm:mb-4 flex items-center gap-3">
             <span
-              id="hero-location-label"
-              className="inline-block font-sans text-xs sm:text-sm font-semibold tracking-[0.28em] text-[#AE9A7C] uppercase"
+              id="hero-developer-label"
+              className="inline-block font-sans text-xs sm:text-sm font-semibold tracking-[0.28em] text-[#A58A71] uppercase"
             >
-              {ONA_FACTS.location}
+              ONIRIA INVESTMENTS
+            </span>
+            <span className="w-1 h-1 rounded-full bg-[#718F9B]" />
+            <span className="text-xs sm:text-sm font-sans tracking-[0.2em] text-[#718F9B] uppercase hidden sm:inline">
+              Zanzibar, Tanzania
             </span>
           </div>
 
-          {/* Monumental Serif Typography */}
+          {/* Script Welcome line */}
+          <span className="font-script text-3xl sm:text-4xl text-[#A58A71] block mb-2">
+            Welcome to:
+          </span>
+
+          {/* Balgin Display Typography */}
           <h1
             id="hero-headline"
-            className="font-display text-hero-display font-semibold text-[#F7F5F0] tracking-tight mb-4 sm:mb-6 uppercase"
+            className="font-balgin text-hero-display font-light text-[#FFFFFF] tracking-tight mb-2 uppercase"
           >
-            ONA
-            <br />
-            TOWERS
+            ôNA
           </h1>
+          <p className="font-display text-2xl sm:text-4xl tracking-[0.38em] text-[#F8F6F2] uppercase mb-4 sm:mb-6 font-light">
+            Towers
+          </p>
 
-          {/* Brand Tagline */}
+          {/* Brand Tagline in Signature Script */}
           <p
             id="hero-tagline"
-            className="font-display italic text-2xl sm:text-3xl text-[#D7D0C5] tracking-wide mb-8 sm:mb-10 font-normal"
+            className="font-script text-3xl sm:text-4xl text-[#C5B19D] tracking-wide mb-8 sm:mb-10 font-normal"
           >
-            {ONA_FACTS.tagline}
+            Live above. See beyond.
           </p>
 
           {/* Restrained Single CTA */}
           <button
             id="hero-explore-cta"
             onClick={onExploreClick}
-            className="group inline-flex items-center space-x-3 text-xs sm:text-sm font-sans tracking-[0.2em] uppercase font-semibold text-[#F7F5F0] hover:text-[#AE9A7C] transition-colors cursor-pointer py-2 focus:outline-none focus:ring-1 focus:ring-[#AE9A7C]"
+            className="group inline-flex items-center space-x-3 text-xs sm:text-sm font-sans tracking-[0.2em] uppercase font-semibold text-[#F8F6F2] hover:text-[#A58A71] transition-colors cursor-pointer py-2 focus:outline-none focus:ring-1 focus:ring-[#A58A71]"
           >
-            <span className="border-b border-[#F7F5F0]/40 pb-1 group-hover:border-[#AE9A7C] transition-colors">
+            <span className="border-b border-[#F8F6F2]/40 pb-1 group-hover:border-[#A58A71] transition-colors">
               Explore ONA
             </span>
-            <span className="w-8 h-8 rounded-full border border-[#F7F5F0]/30 flex items-center justify-center group-hover:border-[#AE9A7C] group-hover:translate-y-0.5 transition-all">
-              <ArrowDownRight className="w-4 h-4 text-[#F7F5F0] group-hover:text-[#AE9A7C]" />
+            <span className="w-8 h-8 rounded-full border border-[#F8F6F2]/30 flex items-center justify-center group-hover:border-[#A58A71] group-hover:translate-y-0.5 transition-all">
+              <ArrowDownRight className="w-4 h-4 text-[#F8F6F2] group-hover:text-[#A58A71]" />
             </span>
           </button>
         </div>
       </div>
 
       {/* Subtle Right Side Indicator */}
-      <div className="hidden lg:flex absolute right-10 bottom-16 z-10 flex-col items-end text-[#D7D0C5]/60 text-[11px] font-sans tracking-widest uppercase">
-        <span className="text-[#AE9A7C] mb-1">{ONA_FACTS.projectName}</span>
-        <span>{ONA_FACTS.location}</span>
+      <div className="hidden lg:flex absolute right-10 bottom-16 z-10 flex-col items-end text-[#D5CFC7]/70 text-[11px] font-sans tracking-widest uppercase">
+        <span className="text-[#A58A71] mb-1 font-semibold">Mazizini, Zanzibar</span>
+        <span className="text-[#718F9B]">Live Above · See Beyond</span>
       </div>
     </section>
   );

@@ -62,20 +62,21 @@ export const ResidenceSelector: React.FC = () => {
   const planUrl = apiPlanPreview || detail?.cover_image || summaries[activeTabId]?.cover_image || fallbackPlan.url;
 
   return (
-    <section id="residence-selector-section" className="relative w-full bg-[#080808] text-[#F7F5F0] py-24 sm:py-36 lg:py-48 border-t border-[#171716]" aria-label="Choose Your Residence">
+    <section id="residence-selector-section" className="relative w-full bg-[#0A131F] text-[#F8F6F2] py-24 sm:py-36 lg:py-48 border-t border-[#193659]/40" aria-label="Choose Your Residence">
       <div className="max-w-7xl mx-auto px-6 sm:px-10">
         <div className="flex items-center space-x-3 mb-6">
-          <span className="w-8 h-px bg-[#AE9A7C]" />
-          <span className="font-sans text-xs font-semibold tracking-[0.24em] uppercase text-[#AE9A7C]">Typology Portfolio</span>
+          <span className="w-8 h-px bg-[#A58A71]" />
+          <span className="font-sans text-xs font-semibold tracking-[0.24em] uppercase text-[#A58A71]">Typology Portfolio</span>
         </div>
 
         <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-16 sm:mb-20 gap-8">
           <div>
-            <h2 id="selector-headline" className="font-display text-section-headline font-semibold text-[#F7F5F0] leading-none uppercase mb-4">CHOOSE YOUR RESIDENCE.</h2>
-            <p className="font-sans text-base text-[#D7D0C5] max-w-xl font-normal">Official project drawings and confirmed specifications for each residence typology.</p>
+            <span className="font-script text-3xl sm:text-4xl text-[#A58A71] block mb-2">Designed for Elevated Living</span>
+            <h2 id="selector-headline" className="font-display text-section-headline font-light text-[#FFFFFF] leading-none uppercase mb-4 tracking-tight">CHOOSE YOUR RESIDENCE.</h2>
+            <p className="font-sans text-base text-[#D5CFC7] max-w-xl font-light">Official architectural drawings and confirmed floor dimensions for each residence typology.</p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-1 sm:gap-2 bg-[#171716] p-1.5 border border-[#D7D0C5]/20 self-start lg:self-end" role="tablist" aria-label="Residence Typologies">
+          <div className="flex flex-wrap items-center gap-1.5 bg-[#102035] p-1.5 border border-[#193659] self-start lg:self-end rounded-sm" role="tablist" aria-label="Residence Typologies">
             {RESIDENCE_TYPOLOGIES.map((typology) => {
               const isSelected = typology.id === activeTabId;
               return (
@@ -86,7 +87,7 @@ export const ResidenceSelector: React.FC = () => {
                   aria-selected={isSelected}
                   onClick={() => setActiveTabId(typology.id)}
                   className={`px-3.5 sm:px-5 py-2.5 sm:py-3 font-sans text-xs font-semibold tracking-[0.16em] uppercase transition-all cursor-pointer ${
-                    isSelected ? 'bg-[#F7F5F0] text-[#080808] shadow-sm' : 'text-[#D7D0C5] hover:text-[#FFFDF8] hover:bg-[#080808]/40'
+                    isSelected ? 'bg-[#A58A71] text-white shadow-md' : 'text-[#D5CFC7] hover:text-white hover:bg-[#193659]/50'
                   }`}
                 >
                   {typology.name.split(' ')[0]} {typology.name.split(' ')[1]}
@@ -98,29 +99,29 @@ export const ResidenceSelector: React.FC = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
           <div className="lg:col-span-5 space-y-8 order-2 lg:order-1">
-            <div className="pb-8 border-b border-[#171716]">
-              <span className="font-sans text-xs font-semibold tracking-[0.24em] text-[#AE9A7C] uppercase block mb-2">{currentTypology.code}</span>
+            <div className="pb-8 border-b border-[#193659]">
+              <span className="font-sans text-xs font-semibold tracking-[0.24em] text-[#A58A71] uppercase block mb-2">{currentTypology.code}</span>
               <div className="flex items-baseline space-x-4">
-                <span className="font-display text-6xl sm:text-7xl lg:text-8xl font-semibold text-[#F7F5F0] tracking-tighter leading-none">{currentTypology.approxAreaSqm}</span>
+                <span className="font-display text-6xl sm:text-7xl lg:text-8xl font-light text-[#FFFFFF] tracking-tighter leading-none">{currentTypology.approxAreaSqm}</span>
                 <div>
-                  <span className="font-display text-2xl sm:text-3xl text-[#AE9A7C] font-semibold block leading-none">SQM</span>
-                  <span className="font-sans text-xs tracking-widest text-[#D7D0C5] uppercase mt-1 block">{currentTypology.bedrooms} Bedrooms &middot; {currentTypology.areaDisplay}</span>
+                  <span className="font-display text-2xl sm:text-3xl text-[#A58A71] font-medium block leading-none">SQM</span>
+                  <span className="font-sans text-xs tracking-widest text-[#718F9B] uppercase mt-1 block">{currentTypology.bedrooms} Bedrooms &middot; {currentTypology.areaDisplay}</span>
                 </div>
               </div>
             </div>
 
             <div>
-              <h3 className="font-display text-2xl sm:text-3xl text-[#F7F5F0] font-semibold mb-3">{currentTypology.name}</h3>
-              <p className="font-display italic text-lg text-[#AE9A7C] mb-4">{currentTypology.tagline}</p>
-              <p className="font-sans text-sm text-[#D7D0C5] leading-relaxed font-normal">{currentTypology.description}</p>
+              <h3 className="font-display text-2xl sm:text-3xl text-[#FFFFFF] font-light mb-3">{currentTypology.name}</h3>
+              <p className="font-script text-2xl text-[#A58A71] mb-4">{currentTypology.tagline}</p>
+              <p className="font-sans text-sm text-[#D5CFC7] leading-relaxed font-light">{currentTypology.description}</p>
             </div>
 
-            <div className="space-y-2.5 pt-4 border-t border-[#171716] text-xs font-sans">
-              <span className="text-[#AE9A7C] uppercase tracking-wider block text-[11px] font-semibold">Confirmed Specifications</span>
-              <ul className="space-y-2 text-xs text-[#D7D0C5]/90">
+            <div className="space-y-2.5 pt-4 border-t border-[#193659] text-xs font-sans">
+              <span className="text-[#A58A71] uppercase tracking-wider block text-[11px] font-semibold">Confirmed Specifications</span>
+              <ul className="space-y-2 text-xs text-[#D5CFC7]">
                 {currentTypology.features.map((feature, index) => (
                   <li key={`${feature}-${index}`} className="flex items-start space-x-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#AE9A7C] mt-1.5 flex-shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#A58A71] mt-1.5 flex-shrink-0" />
                     <span>{feature}</span>
                   </li>
                 ))}
@@ -128,24 +129,24 @@ export const ResidenceSelector: React.FC = () => {
             </div>
 
             <div className="pt-4">
-              <button id="view-full-plan-btn" onClick={() => setIsModalOpen(true)} className="group inline-flex items-center space-x-3 px-6 py-3.5 bg-[#F7F5F0] text-[#080808] hover:bg-[#AE9A7C] transition-colors font-sans text-xs font-semibold tracking-[0.2em] uppercase focus:outline-none cursor-pointer">
+              <button id="view-full-plan-btn" onClick={() => setIsModalOpen(true)} className="group inline-flex items-center space-x-3 px-6 py-3.5 bg-[#A58A71] text-white hover:bg-[#C5B19D] transition-colors font-sans text-xs font-semibold tracking-[0.2em] uppercase focus:outline-none cursor-pointer shadow-lg">
                 <span>Inspect Plan Diagram</span>
-                <Maximize2 className="w-4 h-4 text-[#080808] group-hover:scale-110 transition-transform" />
+                <Maximize2 className="w-4 h-4 text-white group-hover:scale-110 transition-transform" />
               </button>
             </div>
           </div>
 
           <div className="lg:col-span-7 order-1 lg:order-2">
-            <div className="relative bg-[#F7F5F0] border border-[#D7D0C5] p-6 sm:p-10 shadow-2xl rounded-sm group overflow-hidden">
-              <div className="w-full">
+            <div className="relative bg-[#F8F6F2] border border-[#A58A71]/30 p-6 sm:p-10 shadow-2xl rounded-sm group overflow-hidden">
+              <div className="w-full flex items-center justify-center min-h-[440px]">
                 <img src={planUrl} alt={`${currentTypology.name} project drawing`} className="w-full h-auto max-h-[720px] object-contain" />
               </div>
-              <button onClick={() => setIsModalOpen(true)} className="absolute inset-0 bg-[#080808]/0 hover:bg-[#080808]/10 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer" aria-label="Click to enlarge floor plan">
-                <span className="bg-[#080808] text-[#F7F5F0] px-5 py-2.5 font-sans text-xs font-semibold tracking-widest uppercase shadow-xl">Inspect Detailed Plan</span>
+              <button onClick={() => setIsModalOpen(true)} className="absolute inset-0 bg-[#0A131F]/0 hover:bg-[#0A131F]/20 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer" aria-label="Click to enlarge floor plan">
+                <span className="bg-[#0A131F] text-[#F8F6F2] border border-[#A58A71] px-5 py-2.5 font-sans text-xs font-semibold tracking-widest uppercase shadow-xl">Inspect Detailed Plan</span>
               </button>
-              <div className="mt-4 pt-4 border-t border-[#D7D0C5] flex items-center justify-between text-[11px] font-sans text-[#78716C]">
-                <span className="tracking-wider uppercase font-semibold text-[#171716]">{currentTypology.name} &middot; {currentTypology.areaDisplay}</span>
-                <span className="tracking-widest uppercase text-[#AE9A7C] font-semibold">Project Drawing</span>
+              <div className="mt-4 pt-4 border-t border-[#D5CFC7] flex items-center justify-between text-[11px] font-sans text-[#718F9B]">
+                <span className="tracking-wider uppercase font-semibold text-[#0A131F]">{currentTypology.name} &middot; {currentTypology.areaDisplay}</span>
+                <span className="tracking-widest uppercase text-[#A58A71] font-semibold">Official Plan</span>
               </div>
             </div>
           </div>
