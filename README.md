@@ -6,7 +6,7 @@ The project now has one clear frontend implementation in `src/` and one backend 
 
 ## Local ports
 
-- Frontend: **http://127.0.0.1:3020**
+- Frontend: **http://127.0.0.1:3015**
 - Backend: **http://127.0.0.1:8400**
 - API docs: **http://127.0.0.1:8400/docs**
 
@@ -112,7 +112,7 @@ Verify:
 npm run dev
 ```
 
-Open `http://127.0.0.1:3020`.
+Open `http://127.0.0.1:3015`.
 
 ## Tests and checks
 
@@ -131,7 +131,10 @@ python -m app.database.check
 Frontend production build:
 
 ```bash
+npm.cmd run lint
+npm.cmd run check
 npm run build
+npm run dev
 ```
 
 ## Static hosting route fallback
