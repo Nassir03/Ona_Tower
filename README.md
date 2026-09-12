@@ -6,7 +6,7 @@ The project now has one clear frontend implementation in `src/` and one backend 
 
 ## Local ports
 
-- Frontend: **http://127.0.0.1:3020**
+- Frontend: **http://127.0.0.1:3000**
 - Backend: **http://127.0.0.1:8400**
 - API docs: **http://127.0.0.1:8400/docs**
 
@@ -112,7 +112,7 @@ Verify:
 npm run dev
 ```
 
-Open `http://127.0.0.1:3020`.
+Open `http://127.0.0.1:3000`.
 
 ## Tests and checks
 
@@ -142,6 +142,43 @@ This repository includes:
 
 - `public/_redirects` for hosts that support the redirects file format (including Cloudflare Pages / Netlify-style hosting)
 - `vercel.json` for Vercel rewrites
+
+## Deploy to Vercel
+
+The repository is configured for a single Vercel project that serves:
+
+- the Vite frontend from `dist/`
+- the FastAPI backend through `api/index.py`
+- same-origin API calls at `/api/*`
+
+Recommended Vercel project settings:
+
+```text
+Framework Preset: Vite
+Install Command: npm install
+Build Command: npm run build
+Output Directory: dist
+```
+
+Do not set `VITE_API_BASE_URL` in Vercel unless the API is deployed on a separate domain. The frontend defaults to `/api`, which is what `vercel.json` routes to FastAPI.
+
+For a zero-setup preview deployment, no database environment variable is required. The Vercel API entrypoint uses seeded SQLite at `/tmp/ona_towers.db`, which works for marketing content and test enquiries but is ephemeral between serverless cold starts.
+
+For persistent production enquiries, set:
+
+```env
+APP_ENV=production
+APP_DEBUG=false
+DATABASE_URL=postgresql+psycopg://USER:PASSWORD@HOST:PORT/DATABASE
+AUTO_INIT_DB=false
+```
+
+Then run migrations and seed data against that database before going live:
+
+```bash
+alembic upgrade head
+python -m app.database.seed
+```
 
 ## PostgreSQL option
 

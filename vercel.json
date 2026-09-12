@@ -1,5 +1,12 @@
 {
+  "framework": "vite",
+  "installCommand": "npm install",
+  "buildCommand": "npm run build:vercel",
+  "outputDirectory": "dist",
   "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/index.py" },
+    { "source": "/health", "destination": "/api/index.py" },
+    { "source": "/health/database", "destination": "/api/index.py" },
     { "source": "/residences", "destination": "/index.html" },
     { "source": "/development", "destination": "/index.html" },
     { "source": "/lifestyle", "destination": "/index.html" },

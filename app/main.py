@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    if settings.auto_init_db and settings.app_env == "development":
+    if settings.auto_init_db and (settings.app_env == "development" or settings.database_url.startswith("sqlite")):
         initialize_database()
     yield
 

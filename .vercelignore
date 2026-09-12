@@ -1,0 +1,13 @@
+.git
+.venv
+.venv*
+node_modules
+dist
+.pytest_cache
+__pycache__
+*.pyc
+ona_towers.db
+*.db-journal
+deliverables
+coverage
+*.log
