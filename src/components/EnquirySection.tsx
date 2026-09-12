@@ -71,10 +71,10 @@ export const EnquirySection: React.FC = () => {
   };
 
   return (
-    <section id="enquiry" className="relative w-full bg-[#0A131F] text-[#F8F6F2] pt-36 sm:pt-44 pb-24 sm:pb-36 lg:pb-48 border-t border-[#193659]/40 overflow-hidden" aria-label="Register interest for ONA Towers">
+    <section id="enquiry" className="relative w-full bg-[#302A26] text-[#E7DED6] pt-36 sm:pt-44 pb-24 sm:pb-36 lg:pb-48 border-t border-[#403832] overflow-hidden" aria-label="Register interest for ONA Towers">
       <div className="absolute inset-0 pointer-events-none opacity-20">
         <img src={ONA_IMAGES.enquiryBackground.url} alt="" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-[#0A131F]/80" />
+        <div className="absolute inset-0 bg-[#302A26]/80" />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-10">
@@ -86,36 +86,36 @@ export const EnquirySection: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
           <div className="lg:col-span-5 lg:sticky lg:top-32">
             <span className="font-script text-3xl sm:text-4xl text-[#A58A71] block mb-2">Connect with ONIRIA</span>
-            <h2 className="font-display text-section-headline font-light leading-none uppercase mb-4 tracking-tight text-[#FFFFFF]">EXPERIENCE ONA.</h2>
-            <p className="font-sans text-sm sm:text-base text-[#D5CFC7] leading-relaxed max-w-md font-light">
+            <h2 className="font-display text-section-headline font-light leading-none uppercase mb-4 tracking-tight text-[#F5F0EA]">EXPERIENCE ONA.</h2>
+            <p className="font-sans text-sm sm:text-base text-[#E7DED6] leading-relaxed max-w-md font-light">
               Register your interest with our dedicated sales and client advisory team. Receive official floor plans, availability schedules, and private consultation details.
             </p>
-            <div className="mt-10 grid grid-cols-2 gap-6 border-t border-[#193659] pt-8 max-w-md">
+            <div className="mt-10 grid grid-cols-2 gap-6 border-t border-[#403832] pt-8 max-w-md">
               <div>
-                <span className="block font-sans text-[10px] tracking-[0.18em] uppercase text-[#718F9B]">Residence</span>
-                <span className="mt-2 block font-display text-xl text-[#FFFFFF] font-light">2, 3 & Penthouse</span>
+                <span className="block font-sans text-[10px] tracking-[0.18em] uppercase text-[#CFC2B7]">Residence</span>
+                <span className="mt-2 block font-display text-xl text-[#F5F0EA] font-light">2, 3 & Penthouse</span>
               </div>
               <div>
-                <span className="block font-sans text-[10px] tracking-[0.18em] uppercase text-[#718F9B]">Location</span>
-                <span className="mt-2 block font-display text-xl text-[#FFFFFF] font-light">Mazizini, Zanzibar</span>
+                <span className="block font-sans text-[10px] tracking-[0.18em] uppercase text-[#CFC2B7]">Location</span>
+                <span className="mt-2 block font-display text-xl text-[#F5F0EA] font-light">Mazizini, Zanzibar</span>
               </div>
             </div>
           </div>
 
-          <div className="lg:col-span-7 bg-[#102035]/95 border border-[#193659] p-7 sm:p-10 lg:p-12 backdrop-blur-md shadow-2xl rounded-sm">
+          <div className="lg:col-span-7 bg-[#38312C]/95 border border-[#403832] p-7 sm:p-10 lg:p-12 backdrop-blur-md shadow-2xl rounded-sm">
             {reference ? (
               <div className="min-h-[480px] flex flex-col items-start justify-center" role="status" aria-live="polite">
                 <CheckCircle2 className="w-10 h-10 text-[#A58A71] mb-6" aria-hidden="true" />
                 <p className="font-sans text-[11px] font-semibold tracking-[0.22em] uppercase text-[#A58A71] mb-3">Enquiry received</p>
-                <h3 className="font-display text-4xl sm:text-5xl text-[#FFFFFF] font-light mb-5">Thank you.</h3>
-                <p className="font-sans text-sm text-[#D5CFC7] leading-relaxed max-w-lg mb-7 font-light">
+                <h3 className="font-display text-4xl sm:text-5xl text-[#F5F0EA] font-light mb-5">Thank you.</h3>
+                <p className="font-sans text-sm text-[#E7DED6] leading-relaxed max-w-lg mb-7 font-light">
                   Your enquiry has been recorded successfully. An ONA client advisor will reach out to you shortly.
                 </p>
-                <div className="border border-[#A58A71]/50 bg-[#0A131F]/70 px-5 py-4 mb-8 rounded-sm">
-                  <span className="block text-[10px] uppercase tracking-[0.18em] text-[#718F9B] mb-1">Reference Number</span>
-                  <strong className="font-sans text-sm tracking-[0.12em] text-[#FFFFFF]">{reference}</strong>
+                <div className="border border-[#A58A71]/50 bg-[#302A26]/70 px-5 py-4 mb-8 rounded-sm">
+                  <span className="block text-[10px] uppercase tracking-[0.18em] text-[#CFC2B7] mb-1">Reference Number</span>
+                  <strong className="font-sans text-sm tracking-[0.12em] text-[#F5F0EA]">{reference}</strong>
                 </div>
-                <button type="button" onClick={() => setReference('')} className="font-sans text-xs font-semibold tracking-[0.18em] uppercase text-[#A58A71] border-b border-[#A58A71] pb-1 hover:text-white transition-colors cursor-pointer">
+                <button type="button" onClick={() => setReference('')} className="font-sans text-xs font-semibold tracking-[0.18em] uppercase text-[#A58A71] border-b border-[#A58A71] pb-1 hover:text-[#FFFFFF] transition-colors cursor-pointer">
                   Send another enquiry
                 </button>
               </div>
@@ -164,7 +164,7 @@ export const EnquirySection: React.FC = () => {
 
                 <label className="flex items-start gap-3 cursor-pointer group">
                   <input required type="checkbox" checked={form.consent} onChange={(e) => updateField('consent', e.target.checked)} className="mt-1 h-4 w-4 accent-[#A58A71]" />
-                  <span className="font-sans text-xs leading-relaxed text-[#D5CFC7] group-hover:text-white transition-colors">
+                  <span className="font-sans text-xs leading-relaxed text-[#E7DED6] group-hover:text-[#FFFFFF] transition-colors">
                     I agree that my details may be used to respond to this enquiry.
                   </span>
                 </label>
@@ -175,7 +175,7 @@ export const EnquirySection: React.FC = () => {
                   </div>
                 )}
 
-                <button disabled={submitting} type="submit" className="w-full min-h-14 flex items-center justify-center gap-3 py-4 bg-[#A58A71] text-white hover:bg-[#C5B19D] disabled:opacity-60 disabled:cursor-wait transition-colors font-sans text-xs font-semibold tracking-[0.2em] uppercase shadow-lg cursor-pointer rounded-sm">
+                <button disabled={submitting} type="submit" className="w-full min-h-14 flex items-center justify-center gap-3 py-4 bg-[#A58A71] text-[#FFFFFF] hover:bg-[#917860] disabled:opacity-60 disabled:cursor-wait transition-colors font-sans text-xs font-semibold tracking-[0.2em] uppercase shadow-lg cursor-pointer rounded-xs">
                   {submitting && <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />}
                   <span>{submitting ? 'Sending enquiry' : 'Submit enquiry'}</span>
                 </button>
@@ -190,8 +190,8 @@ export const EnquirySection: React.FC = () => {
 
 const Field: React.FC<{ label: string; required?: boolean; children: React.ReactNode }> = ({ label, required, children }) => (
   <label className="block">
-    <span className="block font-sans text-[11px] font-semibold tracking-widest text-[#D7D0C5] uppercase mb-2">
-      {label}{required ? <span className="text-[#AE9A7C]"> *</span> : null}
+    <span className="block font-sans text-[11px] font-semibold tracking-widest text-[#E7DED6] uppercase mb-2">
+      {label}{required ? <span className="text-[#A58A71]"> *</span> : null}
     </span>
     {children}
   </label>

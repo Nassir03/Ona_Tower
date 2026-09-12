@@ -26,13 +26,11 @@
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
+    "server.ts",
     "vite.config.ts"
   ],
   "exclude": [
     "node_modules",
-    "dist",
-    "app",
-    "tests",
-    "migrations"
+    "dist"
   ]
 }

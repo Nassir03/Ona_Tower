@@ -1,7 +1,7 @@
 export interface ImageAsset { url: string; alt: string; caption?: string; location?: string }
 
 export const ONA_IMAGES = {
-  heroArrival: { url: '/ona-assets/hero/hero-arrival.png', alt: 'ONA Towers architectural arrival over Zanzibar horizon', caption: 'ONA Towers — Live above. See beyond.', location: 'Mazizini, Zanzibar' },
+  heroArrival: { url: '/ona-assets/hero/hero-ocean-view.jpg', alt: 'ONA Towers panoramic ocean-view terrace over Zanzibar waters and horizon', caption: 'ONA Towers — Live above. See beyond.', location: 'Mazizini, Zanzibar' },
   heroAerial: { url: '/ona-assets/hero/hero-aerial.png', alt: 'ONA Towers development overview showing Tower A, ONA House, and Tower B', caption: 'Two towers, ONA House, and ocean horizons', location: 'Mazizini, Zanzibar' },
   livePreview: { url: '/ona-assets/residences/residences-exterior.png', alt: 'ONA Towers residential facade and flowing terraces', caption: 'Live — Residences shaped by light and horizon' },
   lifePreview: { url: '/ona-assets/lifestyle/pool.png', alt: 'ONA Towers landscape gardens, shaded pathways, and courtyard', caption: 'Life — Green by design, calm by nature' },

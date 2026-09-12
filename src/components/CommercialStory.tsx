@@ -6,7 +6,7 @@ export const CommercialStory: React.FC = () => {
   return (
     <section
       id="commercial"
-      className="relative w-full bg-[#0A131F] text-[#F8F6F2] pt-36 sm:pt-44 pb-24 sm:pb-36 lg:pb-48 border-t border-[#193659]/40"
+      className="relative w-full bg-[#302A26] text-[#E7DED6] pt-36 sm:pt-44 pb-24 sm:pb-36 lg:pb-48 border-t border-[#403832]"
       aria-label="Commercial and Workspace at ONA"
     >
       <div className="max-w-7xl mx-auto px-6 sm:px-10">
@@ -22,11 +22,11 @@ export const CommercialStory: React.FC = () => {
           <span className="font-script text-3xl sm:text-4xl text-[#A58A71] block mb-2">Commerce Meets Hospitality</span>
           <h2
             id="commercial-headline"
-            className="font-display text-section-headline font-light text-[#FFFFFF] leading-none uppercase mb-4 tracking-tight"
+            className="font-display text-section-headline font-light text-[#F5F0EA] leading-none uppercase mb-4 tracking-tight"
           >
             WORK AT ONA.
           </h2>
-          <p className="font-sans text-base sm:text-lg text-[#D5CFC7] leading-relaxed font-light">
+          <p className="font-sans text-base sm:text-lg text-[#E7DED6] leading-relaxed font-light">
             A dedicated commercial and service hub featuring ground-floor gourmet market & supermarket, flexible office floors, and a private terrace lifestyle club with fine dining, infinity pool, and wellness gym.
           </p>
         </div>
@@ -45,7 +45,7 @@ export const CommercialStory: React.FC = () => {
               >
                 {/* Visual Column */}
                 <div className={`lg:col-span-7 ${isEven ? 'lg:order-2' : 'lg:order-1'}`}>
-                  <div className="relative aspect-[16/10] overflow-hidden bg-[#102035] rounded-sm border border-[#193659] group shadow-2xl">
+                  <div className="relative aspect-[16/10] overflow-hidden bg-[#38312C] rounded-sm border border-[#403832] group shadow-2xl">
                     <img
                       src={ONA_IMAGES[module.imageKey as ImageKey]?.url || ONA_IMAGES.commercialOffice.url}
                       alt={ONA_IMAGES[module.imageKey as ImageKey]?.alt || module.title}
@@ -53,9 +53,9 @@ export const CommercialStory: React.FC = () => {
                       className="w-full h-full object-cover object-center transition-transform duration-1000 group-hover:scale-103"
                       referrerPolicy="no-referrer"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0A131F]/70 via-transparent to-transparent pointer-events-none" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#302A26]/80 via-transparent to-transparent pointer-events-none" />
                     <div className="absolute bottom-6 left-6 z-10">
-                      <span className="font-sans text-[11px] tracking-widest text-[#A58A71] uppercase font-semibold">
+                      <span className="font-sans text-[11px] tracking-widest text-[#A58A71] uppercase font-semibold text-shadow-image">
                         ONA House &middot; {module.label}
                       </span>
                     </div>
@@ -67,20 +67,20 @@ export const CommercialStory: React.FC = () => {
                   <span className="font-sans text-xs font-semibold tracking-[0.24em] text-[#A58A71] uppercase block">
                     {module.label}
                   </span>
-                  <h3 className="font-display text-3xl sm:text-4xl text-[#FFFFFF] font-light leading-tight">
+                  <h3 className="font-display text-3xl sm:text-4xl text-[#F5F0EA] font-light leading-tight">
                     {module.title}
                   </h3>
                   <p className="font-script text-2xl text-[#A58A71]">
                     {module.lead}
                   </p>
-                  <p className="font-sans text-sm text-[#D5CFC7] leading-relaxed font-light">
+                  <p className="font-sans text-sm text-[#E7DED6] leading-relaxed font-light">
                     {module.description}
                   </p>
 
                   {/* Highlights */}
-                  <div className="pt-4 border-t border-[#193659] space-y-2">
+                  <div className="pt-4 border-t border-[#403832] space-y-2">
                     {module.highlights.map((highlight, i) => (
-                      <div key={i} className="flex items-center space-x-2 text-xs text-[#D5CFC7]">
+                      <div key={i} className="flex items-center space-x-2 text-xs text-[#E7DED6]">
                         <span className="w-1.5 h-1.5 rounded-full bg-[#A58A71] flex-shrink-0" />
                         <span>{highlight}</span>
                       </div>

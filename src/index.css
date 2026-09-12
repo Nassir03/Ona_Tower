@@ -49,46 +49,81 @@
 }
 
 @theme {
-  --color-navy: #193659;
-  --color-navy-dark: #0A131F;
-  --color-navy-surface: #102035;
-  --color-navy-card: #13253B;
-  --color-sand: #A58A71;
-  --color-sand-light: #C5B19D;
-  --color-sand-dark: #8C725B;
-  --color-slate: #718F9B;
-  --color-slate-light: #92AEBA;
-  --color-slate-dark: #56717D;
+  --color-brand: #A58A71;
+  --color-brand-hover: #917860;
+  --color-dark: #302A26;
+  --color-dark-deep: #25201D;
+  --color-dark-surface: #38312C;
+  --color-deep-accent: #403832;
+  --color-stone-dark: #403832;
+  --color-ivory: #F3EEE7;
+  --color-stone: #DED4CA;
+  --color-stone-light: #EBE4DC;
+  --color-sand: #CBB9A7;
+  --color-sand-muted: #BBAFA5;
+  --color-text-dark: #302A26;
+  --color-text-light: #F5F0EA;
+  --color-text-muted: #6F645C;
+  --color-text-muted-light: #CFC2B7;
+  --color-border-warm: #A58A71;
+  --color-border-dark: #403832;
+  --color-border-light: #DED4CA;
+
+  /* Legacy color aliases remapped to warm luxury palette */
+  --color-navy: #403832;
+  --color-navy-dark: #302A26;
+  --color-navy-surface: #38312C;
+  --color-navy-card: #38312C;
+  --color-sand-light: #DED4CA;
+  --color-sand-dark: #8E755E;
+  --color-slate: #8C8075;
+  --color-slate-light: #CFC2B7;
+  --color-slate-dark: #574E47;
   --color-champagne: #A58A71;
-  --color-onyx: #070D14;
-  --color-charcoal: #0A131F;
-  --color-graphite: #102035;
-  --color-porcelain: #F8F6F2;
-  --color-ivory: #FFFDF8;
-  --color-bone: #F8F6F2;
-  --color-warm-stone: #D5CFC7;
+  --color-onyx: #25201D;
+  --color-charcoal: #302A26;
+  --color-graphite: #38312C;
+  --color-porcelain: #F5F0EA;
+  --color-ivory-light: #FFFDF8;
+  --color-bone: #F3EEE7;
+  --color-warm-stone: #DED4CA;
 }
 
 @layer base {
   :root {
-    --color-navy: #193659;
-    --color-navy-dark: #0A131F;
-    --color-navy-card: #13253B;
-    --color-sand: #A58A71;
-    --color-sand-light: #C5B19D;
-    --color-slate: #718F9B;
-    --color-onyx: #0A131F;
-    --color-graphite: #102035;
-    --color-porcelain: #F8F6F2;
-    --color-ivory: #FFFDF8;
-    --color-warm-stone: #D5CFC7;
+    --color-brand: #A58A71;
+    --color-brand-hover: #917860;
+    --color-dark: #302A26;
+    --color-dark-deep: #25201D;
+    --color-dark-surface: #38312C;
+    --color-deep-accent: #403832;
+    --color-ivory: #F3EEE7;
+    --color-stone: #DED4CA;
+    --color-sand: #CBB9A7;
+    --color-sand-muted: #BBAFA5;
+    --color-text-dark: #302A26;
+    --color-text-light: #F5F0EA;
+    --color-text-muted: #6F645C;
+    --color-text-muted-light: #CFC2B7;
+    --color-border-warm: #A58A71;
+
+    --color-navy: #403832;
+    --color-navy-dark: #302A26;
+    --color-navy-surface: #38312C;
+    --color-navy-card: #38312C;
+    --color-slate: #8C8075;
+    --color-onyx: #25201D;
+    --color-charcoal: #302A26;
+    --color-graphite: #38312C;
+    --color-porcelain: #F5F0EA;
+    --color-warm-stone: #DED4CA;
     --color-champagne: #A58A71;
   }
 
   body {
     font-family: 'Glacial Indifference', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background-color: var(--color-navy-dark);
-    color: var(--color-porcelain);
+    background-color: var(--color-dark);
+    color: #E7DED6;
     letter-spacing: -0.01em;
   }
 
@@ -171,13 +206,30 @@
 }
 
 
+/* Text shadow utilities for high-contrast legible text over images */
+.text-shadow-image {
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.28);
+}
+
+.text-shadow-hero {
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.45), 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.text-shadow-hero-title {
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5), 0 6px 30px rgba(0, 0, 0, 0.35);
+}
+
+.text-shadow-hero-soft {
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
 /* Shared form treatment */
 .form-input {
   width: 100%;
-  border: 1px solid rgb(165 138 113 / 0.25);
-  background: rgb(10 19 31 / 0.85);
+  border: 1px solid rgb(165 138 113 / 0.45);
+  background: #38312C;
   padding: 0.9rem 1rem;
-  color: #F8F6F2;
+  color: #F5F0EA;
   font-family: 'Glacial Indifference', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 0.875rem;
   line-height: 1.4;
@@ -185,10 +237,81 @@
   transition: border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
 }
 
-.form-input::placeholder { color: rgb(165 138 113 / 0.5); }
+.form-input::placeholder { color: #A89B8F; }
 .form-input:focus {
   border-color: #A58A71;
-  background: #0A131F;
-  box-shadow: 0 0 0 1px rgb(165 138 113 / 0.35);
+  background: #302A26;
+  color: #FFFFFF;
+  box-shadow: 0 0 0 1px rgb(165 138 113 / 0.55);
 }
-.form-input option { background: #102035; color: #F8F6F2; }
+.form-input option { background: #302A26; color: #F5F0EA; }
+
+/* Global Button Styles */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.75rem;
+  background-color: #A58A71;
+  color: #FFFFFF;
+  font-family: 'Glacial Indifference', 'Montserrat', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  transition: all 200ms ease;
+  cursor: pointer;
+  border-radius: 0.125rem;
+}
+.btn-primary:hover {
+  background-color: #917860;
+  color: #FFFFFF;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.75rem;
+  background-color: transparent;
+  border: 1px solid #A58A71;
+  color: #F5F0EA;
+  font-family: 'Glacial Indifference', 'Montserrat', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  transition: all 200ms ease;
+  cursor: pointer;
+  border-radius: 0.125rem;
+}
+.btn-secondary:hover {
+  background-color: #A58A71;
+  color: #FFFFFF;
+}
+
+.btn-secondary-light {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.75rem;
+  background-color: transparent;
+  border: 1px solid #A58A71;
+  color: #302A26;
+  font-family: 'Glacial Indifference', 'Montserrat', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  transition: all 200ms ease;
+  cursor: pointer;
+  border-radius: 0.125rem;
+}
+.btn-secondary-light:hover {
+  background-color: #A58A71;
+  color: #FFFFFF;
+}
+

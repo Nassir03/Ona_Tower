@@ -57,7 +57,7 @@ export function App() {
   }
 
   return (
-    <div className="relative min-h-screen bg-[#080808] text-[#F7F5F0] overflow-x-hidden selection:bg-[#AE9A7C] selection:text-[#080808]">
+    <div className="relative min-h-screen bg-[#302A26] text-[#E7DED6] overflow-x-hidden selection:bg-[#A58A71] selection:text-[#FFFFFF]">
       <Header />
       <main id="main-content" tabIndex={-1} className="focus:outline-none">
         {page}
