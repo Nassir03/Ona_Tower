@@ -1,9 +1,14 @@
 import logging
 
-from sqlalchemy import select
+from sqlalchemy import inspect, select, text
 
+from app.core.config import get_settings
+from app.core.passwords import hash_password
 from app.database.base import Base
-from app.database.models import Amenity, FloorPlan, LocationPoint, Residence, ResidenceMedia, SmartFeature
+from app.database.models import (
+    AdminTeamMember, Amenity, FloorPlan, LocationPoint, Residence,
+    ResidenceMedia, SmartFeature,
+)
 from app.database.session import SessionLocal, engine
 
 logger = logging.getLogger(__name__)
@@ -134,6 +139,70 @@ LOCATION_POINTS = [
 ]
 
 
+def _ensure_sqlite_admin_columns() -> None:
+    """Add additive admin columns to existing local SQLite databases.
+
+    Production and managed databases should still use Alembic migrations.
+    """
+    if engine.dialect.name != "sqlite":
+        return
+
+    inspector = inspect(engine)
+    tables = set(inspector.get_table_names())
+    statements: list[str] = []
+
+    if "enquiries" in tables:
+        existing = {column["name"] for column in inspector.get_columns("enquiries")}
+        if "assigned_to" not in existing:
+            statements.append("ALTER TABLE enquiries ADD COLUMN assigned_to VARCHAR(36)")
+        if "internal_notes" not in existing:
+            statements.append("ALTER TABLE enquiries ADD COLUMN internal_notes TEXT")
+        if "updated_at" not in existing:
+            statements.append("ALTER TABLE enquiries ADD COLUMN updated_at DATETIME")
+
+    if "admin_team_members" in tables:
+        existing = {column["name"] for column in inspector.get_columns("admin_team_members")}
+        if "department" not in existing:
+            statements.append("ALTER TABLE admin_team_members ADD COLUMN department VARCHAR(100)")
+        if "password_hash" not in existing:
+            statements.append("ALTER TABLE admin_team_members ADD COLUMN password_hash TEXT")
+        if "is_super_admin" not in existing:
+            statements.append("ALTER TABLE admin_team_members ADD COLUMN is_super_admin BOOLEAN NOT NULL DEFAULT 0")
+        if "last_login_at" not in existing:
+            statements.append("ALTER TABLE admin_team_members ADD COLUMN last_login_at DATETIME")
+        if "password_reset_requested_at" not in existing:
+            statements.append("ALTER TABLE admin_team_members ADD COLUMN password_reset_requested_at DATETIME")
+
+    if statements:
+        with engine.begin() as connection:
+            for statement in statements:
+                connection.execute(text(statement))
+
+
+def _ensure_default_admin(db) -> None:
+    settings = get_settings()
+    email = settings.admin_email.strip().lower()
+    member = db.scalar(select(AdminTeamMember).where(AdminTeamMember.email == email))
+    if member is None:
+        member = AdminTeamMember(
+            name=settings.admin_name.strip(),
+            email=email,
+            role=settings.admin_role.strip(),
+            department=settings.admin_department.strip() or None,
+            password_hash=hash_password(settings.admin_password),
+            is_super_admin=True,
+            active=True,
+        )
+        db.add(member)
+    elif not member.password_hash:
+        # This safely upgrades the original admin workspace where team members
+        # were assignment records rather than login accounts.
+        member.password_hash = hash_password(settings.admin_password)
+        member.is_super_admin = True
+        member.active = True
+        db.add(member)
+
+
 def _seed_if_missing(db, model, rows, key: str = "name") -> None:
     for row in rows:
         value = row[key]
@@ -144,6 +213,7 @@ def _seed_if_missing(db, model, rows, key: str = "name") -> None:
 def initialize_database() -> None:
     """Create the development schema and seed verified baseline content if needed."""
     Base.metadata.create_all(bind=engine)
+    _ensure_sqlite_admin_columns()
     with SessionLocal() as db:
         _seed_if_missing(db, Residence, RESIDENCES, key="slug")
         db.flush()
@@ -192,5 +262,6 @@ def initialize_database() -> None:
         _seed_if_missing(db, Amenity, AMENITIES)
         _seed_if_missing(db, SmartFeature, SMART_FEATURES)
         _seed_if_missing(db, LocationPoint, LOCATION_POINTS)
+        _ensure_default_admin(db)
         db.commit()
     logger.info("Development database is ready")

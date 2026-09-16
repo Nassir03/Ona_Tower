@@ -1,6 +1,30 @@
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
+import { createHmac, pbkdf2Sync, randomBytes, timingSafeEqual } from 'crypto';
+import { existsSync, readFileSync } from 'fs';
+import { createServer as createHttpServer } from 'http';
 import path from 'path';
 import { createServer as createViteServer } from 'vite';
+
+function loadLocalEnv() {
+  const envPath = path.resolve(process.cwd(), '.env');
+  if (!existsSync(envPath)) return;
+
+  for (const rawLine of readFileSync(envPath, 'utf8').split(/\r?\n/)) {
+    const line = rawLine.trim();
+    if (!line || line.startsWith('#')) continue;
+    const separator = line.indexOf('=');
+    if (separator <= 0) continue;
+
+    const key = line.slice(0, separator).trim();
+    let value = line.slice(separator + 1).trim();
+    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+      value = value.slice(1, -1);
+    }
+    if (process.env[key] === undefined) process.env[key] = value;
+  }
+}
+
+loadLocalEnv();
 
 // --- Types ---
 interface ResidenceMedia {
@@ -78,7 +102,45 @@ interface EnquiryRecord {
   consent: boolean;
   source: string;
   status: string;
+  assigned_to?: string | null;
+  internal_notes?: string | null;
   created_at: string;
+  updated_at?: string | null;
+}
+
+
+interface AdminTeamMember {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string | null;
+  role: string;
+  department?: string | null;
+  password_hash: string;
+  is_super_admin: boolean;
+  active: boolean;
+  last_login_at?: string | null;
+  password_reset_requested_at?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+interface SiteVisitRecord {
+  id: string;
+  session_id: string;
+  page_path: string;
+  visited_at: string;
+}
+
+interface AdminWorkspaceSettings {
+  project_name: string;
+  sales_email?: string | null;
+  sales_phone?: string | null;
+  whatsapp_number?: string | null;
+  response_sla_hours: number;
+  timezone: string;
+  customer_site_url: string;
+  notifications_enabled: boolean;
 }
 
 // --- In-Memory Seed Data ---
@@ -223,6 +285,109 @@ const LOCATION_POINTS: LocationPoint[] = [
 
 const enquiriesStore: EnquiryRecord[] = [];
 
+const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'admin@onatowers.dev').toLowerCase();
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'ona-admin-local';
+const ADMIN_NAME = process.env.ADMIN_NAME || 'Oniria Assistant';
+const ADMIN_ROLE = process.env.ADMIN_ROLE || 'Administrator';
+const ADMIN_DEPARTMENT = process.env.ADMIN_DEPARTMENT || 'Administration';
+const ADMIN_SESSION_SECRET = process.env.ADMIN_SESSION_SECRET || 'ona-local-development-secret';
+const ADMIN_SESSION_HOURS = Number(process.env.ADMIN_SESSION_HOURS || '12');
+
+function hashAdminPassword(password: string): string {
+  const salt = randomBytes(16);
+  const iterations = 260000;
+  const digest = pbkdf2Sync(password, salt, iterations, 32, 'sha256');
+  return `pbkdf2_sha256$${iterations}$${salt.toString('base64url')}$${digest.toString('base64url')}`;
+}
+
+function verifyAdminPassword(password: string, encoded: string): boolean {
+  try {
+    const [algorithm, iterationsText, saltText, digestText] = encoded.split('$');
+    if (algorithm !== 'pbkdf2_sha256') return false;
+    const supplied = pbkdf2Sync(password, Buffer.from(saltText, 'base64url'), Number(iterationsText), 32, 'sha256');
+    return safeEqualString(supplied.toString('base64url'), digestText);
+  } catch { return false; }
+}
+
+const nowSeed = new Date().toISOString();
+const teamStore: AdminTeamMember[] = [{
+  id: 'team-admin-local',
+  name: ADMIN_NAME,
+  email: ADMIN_EMAIL,
+  phone: null,
+  role: ADMIN_ROLE,
+  department: ADMIN_DEPARTMENT,
+  password_hash: hashAdminPassword(ADMIN_PASSWORD),
+  is_super_admin: true,
+  active: true,
+  last_login_at: null,
+  password_reset_requested_at: null,
+  created_at: nowSeed,
+  updated_at: nowSeed,
+}];
+const siteVisitsStore: SiteVisitRecord[] = [];
+let adminWorkspaceSettings: AdminWorkspaceSettings = {
+  project_name: 'ONA Towers',
+  sales_email: null,
+  sales_phone: null,
+  whatsapp_number: null,
+  response_sla_hours: 24,
+  timezone: 'Africa/Dar_es_Salaam',
+  customer_site_url: '/',
+  notifications_enabled: true,
+};
+let adminSettingsUpdatedAt: string | null = null;
+
+function b64url(value: string | Buffer): string {
+  return Buffer.from(value).toString('base64url');
+}
+
+function makeAdminToken(member: AdminTeamMember): { token: string; expiresAt: number } {
+  const expiresAt = Math.floor(Date.now() / 1000) + ADMIN_SESSION_HOURS * 3600;
+  const payload = b64url(JSON.stringify({ id: member.id, email: member.email, exp: expiresAt }));
+  const signature = createHmac('sha256', ADMIN_SESSION_SECRET).update(payload).digest('base64url');
+  return { token: `${payload}.${signature}`, expiresAt };
+}
+
+function safeEqualString(left: string, right: string): boolean {
+  const a = Buffer.from(left);
+  const b = Buffer.from(right);
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+
+function adminFromToken(token: string): AdminTeamMember | null {
+  try {
+    const [payloadPart, signaturePart] = token.split('.', 2);
+    if (!payloadPart || !signaturePart) return null;
+    const expected = createHmac('sha256', ADMIN_SESSION_SECRET).update(payloadPart).digest('base64url');
+    if (!safeEqualString(expected, signaturePart)) return null;
+    const payload = JSON.parse(Buffer.from(payloadPart, 'base64url').toString('utf8')) as { id: string; email: string; exp: number };
+    if (Number(payload.exp) <= Math.floor(Date.now() / 1000)) return null;
+    return teamStore.find((item) => item.id === payload.id && item.active && item.email === payload.email) || null;
+  } catch { return null; }
+}
+
+function currentAdmin(req: Request, res: Response): AdminTeamMember | null {
+  const authorization = req.header('authorization') || '';
+  const token = authorization.toLowerCase().startsWith('bearer ') ? authorization.slice(7).trim() : '';
+  const member = token ? adminFromToken(token) : null;
+  if (!member) {
+    res.status(401).json({ error: { code: 'admin_unauthorized', message: 'Admin authentication is required. Please sign in again.' } });
+    return null;
+  }
+  return member;
+}
+
+function requireSuperAdmin(req: Request, res: Response): AdminTeamMember | null {
+  const member = currentAdmin(req, res);
+  if (!member) return null;
+  if (!member.is_super_admin) {
+    res.status(403).json({ error: { code: 'admin_forbidden', message: 'Administrator permission is required for this action.' } });
+    return null;
+  }
+  return member;
+}
+
 function makeReferenceNumber(): string {
   const datePart = new Date().toISOString().slice(0, 10).replace(/-/g, '');
   const randomSuffix = Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -231,9 +396,22 @@ function makeReferenceNumber(): string {
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = 3010;
+  const httpServer = createHttpServer(app);
 
   app.use(express.json());
+  app.use((err: unknown, _req: Request, res: Response, next: NextFunction) => {
+    if (err instanceof SyntaxError) {
+      res.status(400).json({
+        error: {
+          code: 'invalid_json',
+          message: 'The request body must be valid JSON.',
+        },
+      });
+      return;
+    }
+    next(err);
+  });
 
   // --- Health Endpoints ---
   app.get('/health', (_req: Request, res: Response) => {
@@ -399,10 +577,259 @@ async function startServer() {
     });
   });
 
+
+  // --- Anonymous customer-site analytics ---
+  app.post('/api/analytics/visit', (req: Request, res: Response) => {
+    const sessionId = String(req.body?.session_id || '').trim().slice(0, 80);
+    const pagePath = String(req.body?.page_path || '').trim().slice(0, 220);
+    if (sessionId.length < 8 || !pagePath) {
+      res.status(422).json({ error: { code: 'validation_error', message: 'A valid session and page are required.' } });
+      return;
+    }
+    if (!pagePath.startsWith('/admin')) {
+      siteVisitsStore.push({ id: `visit-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, session_id: sessionId, page_path: pagePath, visited_at: new Date().toISOString() });
+    }
+    res.status(201).json({ success: true });
+  });
+
+  function publicStaff(member: AdminTeamMember) {
+    const { password_hash: _passwordHash, ...safe } = member;
+    return safe;
+  }
+
+  function buildAnalytics() {
+    const now = new Date();
+    const thirtyDaysAgo = now.getTime() - 30 * 24 * 60 * 60 * 1000;
+    const visits30 = siteVisitsStore.filter((visit) => new Date(visit.visited_at).getTime() >= thirtyDaysAgo);
+    const uniqueSessions = new Set(visits30.map((visit) => visit.session_id)).size;
+    const topCounts = new Map<string, number>();
+    visits30.forEach((visit) => topCounts.set(visit.page_path, (topCounts.get(visit.page_path) || 0) + 1));
+    const topPages = [...topCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6).map(([path, visits]) => ({ path, visits }));
+
+    const daily = Array.from({ length: 14 }, (_, offset) => {
+      const day = new Date(now);
+      day.setHours(0, 0, 0, 0);
+      day.setDate(day.getDate() - (13 - offset));
+      const next = new Date(day); next.setDate(next.getDate() + 1);
+      const value = siteVisitsStore.filter((visit) => {
+        const time = new Date(visit.visited_at).getTime();
+        return time >= day.getTime() && time < next.getTime();
+      }).length;
+      return { label: day.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }), value };
+    });
+
+    const monthly = Array.from({ length: 12 }, (_, offset) => {
+      const month = new Date(now.getFullYear(), now.getMonth() - (11 - offset), 1);
+      const next = new Date(month.getFullYear(), month.getMonth() + 1, 1);
+      const value = siteVisitsStore.filter((visit) => {
+        const time = new Date(visit.visited_at).getTime();
+        return time >= month.getTime() && time < next.getTime();
+      }).length;
+      return { label: month.toLocaleDateString('en-GB', { month: 'short', year: '2-digit' }), value };
+    });
+
+    return { total_visits_30_days: visits30.length, unique_sessions_30_days: uniqueSessions, daily, monthly, top_pages: topPages };
+  }
+
+  // --- Admin Workspace API ---
+  app.post('/api/admin/login', (req: Request, res: Response) => {
+    if (process.env.NODE_ENV === 'production' && (ADMIN_PASSWORD === 'ona-admin-local' || ADMIN_SESSION_SECRET === 'ona-local-development-secret')) {
+      res.status(503).json({ error: { code: 'admin_not_configured', message: 'Admin access is not configured for production.' } });
+      return;
+    }
+    const email = String(req.body?.email || '').trim().toLowerCase();
+    const password = String(req.body?.password || '');
+    const member = teamStore.find((item) => item.email === email && item.active);
+    if (!member || !verifyAdminPassword(password, member.password_hash)) {
+      res.status(401).json({ error: { code: 'admin_invalid_credentials', message: 'Invalid staff email or password.' } });
+      return;
+    }
+    member.last_login_at = new Date().toISOString();
+    member.password_reset_requested_at = null;
+    member.updated_at = new Date().toISOString();
+    const { token, expiresAt } = makeAdminToken(member);
+    res.json({ token, token_type: 'bearer', expires_at: expiresAt, user: publicStaff(member) });
+  });
+
+  app.post('/api/admin/forgot-password', (req: Request, res: Response) => {
+    const email = String(req.body?.email || '').trim().toLowerCase();
+    const member = teamStore.find((item) => item.email === email && item.active);
+    if (member) {
+      member.password_reset_requested_at = new Date().toISOString();
+      member.updated_at = new Date().toISOString();
+    }
+    res.json({ success: true, message: 'If that staff account exists, a password reset request has been recorded.' });
+  });
+
+  app.get('/api/admin/me', (req: Request, res: Response) => {
+    const member = currentAdmin(req, res); if (!member) return;
+    res.json({ user: publicStaff(member) });
+  });
+
+  app.patch('/api/admin/profile', (req: Request, res: Response) => {
+    const member = currentAdmin(req, res); if (!member) return;
+    const name = String(req.body?.name || '').trim();
+    const email = String(req.body?.email || '').trim().toLowerCase();
+    const phone = req.body?.phone ? String(req.body.phone).trim() : null;
+    if (name.length < 2 || !email.includes('@')) {
+      res.status(422).json({ error: { code: 'validation_error', message: 'Full name and a valid email are required.' } }); return;
+    }
+    if (teamStore.some((item) => item.id !== member.id && item.email === email)) {
+      res.status(409).json({ error: { code: 'team_email_exists', message: 'A staff account with this email already exists.' } }); return;
+    }
+    member.name = name; member.email = email; member.phone = phone; member.updated_at = new Date().toISOString();
+    const { token, expiresAt } = makeAdminToken(member);
+    res.json({ token, token_type: 'bearer', expires_at: expiresAt, user: publicStaff(member) });
+  });
+
+  app.post('/api/admin/security/password', (req: Request, res: Response) => {
+    const member = currentAdmin(req, res); if (!member) return;
+    const currentPassword = String(req.body?.current_password || '');
+    const next = String(req.body?.new_password || '');
+    const confirm = String(req.body?.confirm_password || '');
+    if (!verifyAdminPassword(currentPassword, member.password_hash)) {
+      res.status(422).json({ error: { code: 'invalid_current_password', message: 'Current password is incorrect.' } }); return;
+    }
+    if (next.length < 8 || next !== confirm || next === currentPassword) {
+      res.status(422).json({ error: { code: 'validation_error', message: 'Use a different password of at least 8 characters and confirm it correctly.' } }); return;
+    }
+    member.password_hash = hashAdminPassword(next); member.password_reset_requested_at = null; member.updated_at = new Date().toISOString();
+    res.json({ success: true, message: 'Password updated successfully.' });
+  });
+
+  app.get('/api/admin/overview', (req: Request, res: Response) => {
+    if (!currentAdmin(req, res)) return;
+    const closedStatuses = new Set(['closed', 'archived']);
+    const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    const overdueBefore = Date.now() - adminWorkspaceSettings.response_sla_hours * 60 * 60 * 1000;
+    const recent = [...enquiriesStore].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 6);
+    res.json({
+      total_enquiries: enquiriesStore.length,
+      new_enquiries: enquiriesStore.filter((item) => item.status === 'new').length,
+      active_enquiries: enquiriesStore.filter((item) => !closedStatuses.has(item.status)).length,
+      closed_enquiries: enquiriesStore.filter((item) => closedStatuses.has(item.status)).length,
+      enquiries_last_7_days: enquiriesStore.filter((item) => new Date(item.created_at).getTime() >= sevenDaysAgo).length,
+      active_team_members: teamStore.filter((member) => member.active).length,
+      overdue_enquiries: enquiriesStore.filter((item) => !closedStatuses.has(item.status) && new Date(item.created_at).getTime() < overdueBefore).length,
+      recent_enquiries: recent,
+      settings: adminWorkspaceSettings,
+      analytics: buildAnalytics(),
+    });
+  });
+
+  app.get('/api/admin/enquiries', (req: Request, res: Response) => {
+    if (!currentAdmin(req, res)) return;
+    const search = String(req.query.search || '').trim().toLowerCase();
+    const status = String(req.query.status || 'all');
+    const page = Math.max(1, Number(req.query.page || 1));
+    const pageSize = Math.min(100, Math.max(1, Number(req.query.page_size || 25)));
+    let items = [...enquiriesStore];
+    if (search) items = items.filter((item) => [item.name, item.email || '', item.phone, item.reference_number, item.residence_interest || ''].some((value) => value.toLowerCase().includes(search)));
+    if (status !== 'all') items = items.filter((item) => item.status === status);
+    items.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    const total = items.length; const start = (page - 1) * pageSize;
+    res.json({ items: items.slice(start, start + pageSize), total, page, page_size: pageSize });
+  });
+
+  app.patch('/api/admin/enquiries/:id', (req: Request, res: Response) => {
+    if (!currentAdmin(req, res)) return;
+    const item = enquiriesStore.find((enquiry) => enquiry.id === req.params.id);
+    if (!item) { res.status(404).json({ error: { code: 'not_found', message: 'Enquiry not found.' } }); return; }
+    const validStatuses = new Set(['new', 'contacted', 'qualified', 'viewing_scheduled', 'closed', 'archived']);
+    if (req.body?.status !== undefined) {
+      if (!validStatuses.has(req.body.status)) { res.status(422).json({ error: { code: 'validation_error', message: 'Invalid enquiry status.' } }); return; }
+      item.status = req.body.status;
+    }
+    if (req.body?.assigned_to !== undefined) {
+      const assignedTo = req.body.assigned_to || null;
+      if (assignedTo && !teamStore.some((member) => member.id === assignedTo && member.active)) { res.status(422).json({ error: { code: 'invalid_assignee', message: 'The selected staff member is not available.' } }); return; }
+      item.assigned_to = assignedTo;
+    }
+    if (req.body?.internal_notes !== undefined) item.internal_notes = req.body.internal_notes ? String(req.body.internal_notes).trim().slice(0, 5000) : null;
+    item.updated_at = new Date().toISOString(); res.json(item);
+  });
+
+  app.get('/api/admin/team', (req: Request, res: Response) => {
+    if (!currentAdmin(req, res)) return;
+    const includeInactive = String(req.query.include_inactive || 'false') === 'true';
+    res.json(teamStore.filter((member) => includeInactive || member.active).sort((a, b) => a.name.localeCompare(b.name)).map(publicStaff));
+  });
+
+  app.post('/api/admin/team', (req: Request, res: Response) => {
+    if (!requireSuperAdmin(req, res)) return;
+    const name = String(req.body?.name || '').trim(); const email = String(req.body?.email || '').trim().toLowerCase();
+    const role = String(req.body?.role || 'Sales manager').trim(); const phone = req.body?.phone ? String(req.body.phone).trim() : null;
+    const department = req.body?.department ? String(req.body.department).trim() : null; const password = String(req.body?.password || '');
+    if (name.length < 2 || !email.includes('@') || role.length < 2 || password.length < 8) { res.status(422).json({ error: { code: 'validation_error', message: 'Name, valid email, responsibility and a password of at least 8 characters are required.' } }); return; }
+    if (teamStore.some((member) => member.email === email)) { res.status(409).json({ error: { code: 'team_email_exists', message: 'A staff account with this email already exists.' } }); return; }
+    const now = new Date().toISOString();
+    const member: AdminTeamMember = { id: `team-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, name, email, phone, role, department, password_hash: hashAdminPassword(password), is_super_admin: Boolean(req.body?.is_super_admin), active: req.body?.active !== false, last_login_at: null, password_reset_requested_at: null, created_at: now, updated_at: now };
+    teamStore.push(member); res.status(201).json(publicStaff(member));
+  });
+
+  app.patch('/api/admin/team/:id', (req: Request, res: Response) => {
+    const actor = requireSuperAdmin(req, res); if (!actor) return;
+    const member = teamStore.find((item) => item.id === req.params.id);
+    if (!member) { res.status(404).json({ error: { code: 'not_found', message: 'Staff member not found.' } }); return; }
+    const nextEmail = req.body?.email !== undefined ? String(req.body.email).trim().toLowerCase() : member.email;
+    if (teamStore.some((item) => item.id !== member.id && item.email === nextEmail)) { res.status(409).json({ error: { code: 'team_email_exists', message: 'A staff account with this email already exists.' } }); return; }
+    const nextActive = req.body?.active !== undefined ? Boolean(req.body.active) : member.active;
+    const nextSuper = req.body?.is_super_admin !== undefined ? Boolean(req.body.is_super_admin) : member.is_super_admin;
+    if (member.id === actor.id && !nextActive) { res.status(422).json({ error: { code: 'cannot_deactivate_self', message: 'You cannot remove your own access while signed in.' } }); return; }
+    const otherAdmins = teamStore.filter((item) => item.id !== member.id && item.active && item.is_super_admin).length;
+    if (member.is_super_admin && (!nextActive || !nextSuper) && otherAdmins === 0) { res.status(422).json({ error: { code: 'last_admin_required', message: 'At least one active administrator account is required.' } }); return; }
+    if (req.body?.name !== undefined) member.name = String(req.body.name).trim();
+    if (req.body?.email !== undefined) member.email = nextEmail;
+    if (req.body?.phone !== undefined) member.phone = req.body.phone ? String(req.body.phone).trim() : null;
+    if (req.body?.role !== undefined) member.role = String(req.body.role).trim();
+    if (req.body?.department !== undefined) member.department = req.body.department ? String(req.body.department).trim() : null;
+    member.is_super_admin = nextSuper; member.active = nextActive; member.updated_at = new Date().toISOString(); res.json(publicStaff(member));
+  });
+
+  app.post('/api/admin/team/:id/reset-password', (req: Request, res: Response) => {
+    if (!requireSuperAdmin(req, res)) return;
+    const member = teamStore.find((item) => item.id === req.params.id); const password = String(req.body?.new_password || '');
+    if (!member) { res.status(404).json({ error: { code: 'not_found', message: 'Staff member not found.' } }); return; }
+    if (password.length < 8) { res.status(422).json({ error: { code: 'validation_error', message: 'Password must contain at least 8 characters.' } }); return; }
+    member.password_hash = hashAdminPassword(password); member.password_reset_requested_at = null; member.updated_at = new Date().toISOString();
+    res.json({ success: true, message: 'Temporary password saved. Ask the staff member to sign in and change it.' });
+  });
+
+  app.delete('/api/admin/team/:id', (req: Request, res: Response) => {
+    const actor = requireSuperAdmin(req, res); if (!actor) return;
+    const member = teamStore.find((item) => item.id === req.params.id);
+    if (!member) { res.status(404).json({ error: { code: 'not_found', message: 'Staff member not found.' } }); return; }
+    if (member.id === actor.id) { res.status(422).json({ error: { code: 'cannot_deactivate_self', message: 'You cannot remove your own access while signed in.' } }); return; }
+    const otherAdmins = teamStore.filter((item) => item.id !== member.id && item.active && item.is_super_admin).length;
+    if (member.is_super_admin && otherAdmins === 0) { res.status(422).json({ error: { code: 'last_admin_required', message: 'At least one active administrator account is required.' } }); return; }
+    member.active = false; member.updated_at = new Date().toISOString(); res.json({ success: true, message: 'Staff access removed. Historical enquiry assignments were preserved.' });
+  });
+
+  app.get('/api/admin/settings', (req: Request, res: Response) => {
+    if (!currentAdmin(req, res)) return; res.json({ settings: adminWorkspaceSettings, updated_at: adminSettingsUpdatedAt });
+  });
+
+  app.patch('/api/admin/settings', (req: Request, res: Response) => {
+    if (!requireSuperAdmin(req, res)) return;
+    const next = req.body || {};
+    adminWorkspaceSettings = {
+      project_name: String(next.project_name || 'ONA Towers').slice(0, 120), sales_email: next.sales_email ? String(next.sales_email).slice(0, 254) : null,
+      sales_phone: next.sales_phone ? String(next.sales_phone).slice(0, 40) : null, whatsapp_number: next.whatsapp_number ? String(next.whatsapp_number).slice(0, 40) : null,
+      response_sla_hours: Math.min(168, Math.max(1, Number(next.response_sla_hours || 24))), timezone: String(next.timezone || 'Africa/Dar_es_Salaam').slice(0, 80),
+      customer_site_url: String(next.customer_site_url || '/').slice(0, 500), notifications_enabled: next.notifications_enabled !== false,
+    };
+    adminSettingsUpdatedAt = new Date().toISOString(); res.json({ settings: adminWorkspaceSettings, updated_at: adminSettingsUpdatedAt });
+  });
+
   // --- Static & Vite Frontend Handling ---
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: {
+        middlewareMode: true,
+        hmr: {
+          server: httpServer,
+        },
+      },
       appType: 'spa',
     });
     app.use(vite.middlewares);
@@ -415,7 +842,15 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
+  httpServer.on('error', (error: NodeJS.ErrnoException) => {
+    if (error.code === 'EADDRINUSE') {
+      console.log(`Port ${PORT} is already in use. The ONA Towers dev server is probably already running at http://127.0.0.1:${PORT}`);
+      process.exit(0);
+    }
+    throw error;
+  });
+
+  httpServer.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on http://0.0.0.0:${PORT}`);
   });
 }

@@ -21,6 +21,10 @@ The Home page is intentionally concise. Detailed content is separated into dedic
 - `/commercial` — commercial / service building
 - `/location` — Zanzibar location information
 - `/enquire` — enquiry form
+- `/admin` — authenticated admin overview
+- `/admin/enquiries` — customer enquiry management
+- `/admin/team` — team and assignment management
+- `/admin/settings` — admin workspace settings
 
 The navigation and footer use real URL routes instead of scrolling through one oversized Home page.
 
@@ -34,6 +38,12 @@ The active frontend is connected to these backend endpoints:
 - `GET /api/smart-features`
 - `GET /api/location-points`
 - `POST /api/enquiries`
+- `POST /api/admin/login`
+- `GET /api/admin/overview`
+- `GET /api/admin/enquiries`
+- `PATCH /api/admin/enquiries/{id}`
+- `GET/POST/PATCH/DELETE /api/admin/team`
+- `GET/PATCH /api/admin/settings`
 
 Verified local project content remains as a graceful display fallback for the read-only marketing sections if the API is temporarily unavailable. Enquiry submission still requires the backend.
 
@@ -211,3 +221,70 @@ migrations/           Alembic migrations
 scripts/              Local run helpers
 tests/                Backend API tests
 ```
+
+
+## Admin workspace
+
+The administration workspace is isolated from the public customer layout and is available at `/admin`. It includes Overview, Enquiries, Team and Settings.
+
+Local bootstrap credentials:
+
+```text
+Email: admin@onatowers.dev
+Password: ona-admin-local
+```
+
+Production must override the bootstrap administrator and session secret:
+
+```env
+ADMIN_EMAIL=your-admin-email@example.com
+ADMIN_PASSWORD=replace-with-a-strong-password
+ADMIN_NAME=Administrator
+ADMIN_ROLE=Administrator
+ADMIN_DEPARTMENT=Administration
+ADMIN_SESSION_SECRET=replace-with-a-long-random-secret
+ADMIN_SESSION_HOURS=12
+```
+
+Staff accounts are stored in `admin_team_members`. Passwords are PBKDF2-SHA256 hashes; plain-text passwords are never returned by the API. Administrators can create staff accounts, set responsibilities/departments, reset passwords and remove access. Each staff member can edit their own name, email, phone and password from Settings.
+
+The login page uses staff email + password and includes a password-reset request. Reset requests are surfaced on the Team page so an administrator can issue a temporary password.
+
+### Customer → admin connection
+
+The public enquiry form continues to submit to `POST /api/enquiries`. Admin Enquiries reads and updates those same records. Public page navigation also sends an anonymous `POST /api/analytics/visit` record containing only a generated browser session ID, page path and timestamp. Admin Overview uses these records for daily/monthly traffic plots and top-page totals. Admin routes are excluded from customer analytics.
+
+### Local run
+
+After copying `.env.example` to `.env`, install dependencies and prepare the database:
+
+```powershell
+python -m pip install -r requirements.txt
+npm install
+python -m alembic upgrade head
+python -m app.database.check
+```
+
+Run the FastAPI backend in terminal 1:
+
+```powershell
+python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8400
+```
+
+Run the Vite/Express frontend in terminal 2:
+
+```powershell
+npm run dev
+```
+
+Open `http://127.0.0.1:3000/admin`. The supplied `.env.example` points the local frontend API at `http://127.0.0.1:8400/api`. For same-origin production/Vercel deployment, do not set `VITE_API_BASE_URL`.
+
+### Database upgrade
+
+The current Alembic head is `c4f2a31b7d90`. Apply it with:
+
+```bash
+python -m alembic upgrade head
+```
+
+The development SQLite bootstrap also adds the new staff-account columns when opening an older local database.

@@ -1,4 +1,6 @@
 import React, { useEffect } from 'react';
+import { AdminApp } from './admin/AdminApp';
+import { recordPageVisit } from './api/analytics';
 import { Footer } from './components/Footer';
 import { Header } from './components/Header';
 import { CommercialPage } from './pages/CommercialPage';
@@ -25,9 +27,16 @@ export function App() {
   const pathname = usePathname();
 
   useEffect(() => {
-    document.title = pageTitles[pathname] || 'ONA Towers Zanzibar';
+    document.title = pathname.startsWith('/admin')
+      ? 'Administration | ONA Towers'
+      : pageTitles[pathname] || 'ONA Towers Zanzibar';
     window.scrollTo({ top: 0, behavior: 'auto' });
+    if (!pathname.startsWith('/admin')) void recordPageVisit(pathname);
   }, [pathname]);
+
+  if (pathname === '/admin' || pathname.startsWith('/admin/')) {
+    return <AdminApp pathname={pathname} />;
+  }
 
   let page: React.ReactNode;
   switch (pathname) {

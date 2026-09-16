@@ -1,7 +1,7 @@
 from functools import lru_cache
 from typing import Literal
+import json
 
-from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -12,15 +12,13 @@ class Settings(BaseSettings):
     api_prefix: str = "/api"
     host: str = "0.0.0.0"
     port: int = 8400
-    cors_origins: list[str] = [
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://localhost:3020",
-        "http://127.0.0.1:3020",
-    ]
+    # Kept as a string so .env accepts both comma-separated and JSON-array values.
+    cors_origins: str = (
+        "http://localhost:3000,http://127.0.0.1:3000,"
+        "http://localhost:3020,http://127.0.0.1:3020"
+    )
     log_level: str = "INFO"
 
-    # Zero-setup local development. Production can point DATABASE_URL at PostgreSQL.
     database_url: str = "sqlite+pysqlite:///./ona_towers.db"
     auto_init_db: bool = True
 
@@ -39,6 +37,15 @@ class Settings(BaseSettings):
     smtp_use_tls: bool = True
     sales_notification_email: str | None = None
 
+    # The first database-backed administrator is bootstrapped from these values.
+    admin_email: str = "admin@onatowers.dev"
+    admin_password: str = "ona-admin-local"
+    admin_name: str = "Oniria Assistant"
+    admin_role: str = "Administrator"
+    admin_department: str = "Administration"
+    admin_session_secret: str = "ona-local-development-secret"
+    admin_session_hours: int = 12
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
@@ -46,12 +53,19 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    @field_validator("cors_origins", mode="before")
-    @classmethod
-    def parse_cors_origins(cls, value):
-        if isinstance(value, str):
-            return [item.strip() for item in value.split(",") if item.strip()]
-        return value
+    @property
+    def cors_origins_list(self) -> list[str]:
+        value = self.cors_origins.strip()
+        if not value:
+            return []
+        if value.startswith("["):
+            try:
+                parsed = json.loads(value)
+                if isinstance(parsed, list):
+                    return [str(item).strip() for item in parsed if str(item).strip()]
+            except json.JSONDecodeError:
+                pass
+        return [item.strip() for item in value.split(",") if item.strip()]
 
 
 @lru_cache

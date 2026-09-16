@@ -1,7 +1,7 @@
 BASE_PAYLOAD = {
-    "name": "Amina Hassan",
+    "name": "Test Customer",
     "phone": "+255 777 123 456",
-    "email": "amina@example.com",
+    "email": "customer@example.com",
     "residence_interest": "2-bedroom",
     "enquiry_type": "request_floor_plans",
     "message": "Please send me the plans.",

@@ -17,6 +17,9 @@ REQUIRED_TABLES = {
     "smart_features",
     "location_points",
     "enquiries",
+    "admin_team_members",
+    "admin_settings",
+    "site_visits",
 }
 
 
