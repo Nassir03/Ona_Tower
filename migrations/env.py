@@ -26,7 +26,7 @@ if config.config_file_name is not None:
 # Metadata used by Alembic for autogenerate
 target_metadata = Base.metadata
 INITIAL_REVISION = "05b4c32881e1"
-HEAD_REVISION = "9b6a7f0f3e12"
+HEAD_REVISION = "c4f2a31b7d90"
 INITIAL_TABLES = {
     "amenities",
     "enquiries",
@@ -38,6 +38,7 @@ INITIAL_TABLES = {
 }
 ADMIN_TABLES = {"admin_settings", "admin_team_members"}
 ADMIN_ENQUIRY_COLUMNS = {"assigned_to", "internal_notes", "updated_at"}
+ADMIN_ACCOUNT_COLUMNS = {"department", "password_hash", "is_super_admin", "last_login_at", "password_reset_requested_at"}
 
 
 def stamp_existing_sqlite_schema(connection) -> None:
@@ -59,19 +60,45 @@ def stamp_existing_sqlite_schema(connection) -> None:
         text("CREATE TABLE IF NOT EXISTS alembic_version (version_num VARCHAR(32) NOT NULL)")
     )
     existing_version = connection.execute(text("SELECT version_num FROM alembic_version LIMIT 1")).scalar()
-    if existing_version:
-        return
 
     enquiry_columns = {column["name"] for column in inspector.get_columns("enquiries")}
-    revision = (
-        HEAD_REVISION
-        if ADMIN_TABLES.issubset(tables) and ADMIN_ENQUIRY_COLUMNS.issubset(enquiry_columns)
-        else INITIAL_REVISION
+    admin_columns = (
+        {column["name"] for column in inspector.get_columns("admin_team_members")}
+        if "admin_team_members" in tables
+        else set()
     )
-    connection.execute(
-        text("INSERT INTO alembic_version (version_num) VALUES (:revision)"),
-        {"revision": revision},
-    )
+
+    if (
+        ADMIN_TABLES.issubset(tables)
+        and ADMIN_ENQUIRY_COLUMNS.issubset(enquiry_columns)
+        and ADMIN_ACCOUNT_COLUMNS.issubset(admin_columns)
+        and "site_visits" in tables
+    ):
+        detected_revision = HEAD_REVISION
+    elif ADMIN_TABLES.issubset(tables) and ADMIN_ENQUIRY_COLUMNS.issubset(enquiry_columns):
+        detected_revision = "9b6a7f0f3e12"
+    else:
+        detected_revision = INITIAL_REVISION
+
+    if not existing_version:
+        connection.execute(
+            text("INSERT INTO alembic_version (version_num) VALUES (:revision)"),
+            {"revision": detected_revision},
+        )
+    elif existing_version == "9b6a7f0f3e12" and detected_revision == HEAD_REVISION:
+        # A prior development bootstrap may already have created the head
+        # columns/tables while Alembic still records the previous revision.
+        # Align the version marker with the schema rather than replaying
+        # additive DDL and raising duplicate-column errors.
+        connection.execute(
+            text("UPDATE alembic_version SET version_num = :revision"),
+            {"revision": HEAD_REVISION},
+        )
+    elif existing_version == INITIAL_REVISION and detected_revision in {"9b6a7f0f3e12", HEAD_REVISION}:
+        connection.execute(
+            text("UPDATE alembic_version SET version_num = :revision"),
+            {"revision": detected_revision},
+        )
     connection.commit()
 
 
@@ -103,6 +130,10 @@ def run_migrations_online() -> None:
 
     with connectable.connect() as connection:
         stamp_existing_sqlite_schema(connection)
+        # SQLAlchemy 2.x inspections can autobegin a transaction. Close that
+        # transaction before handing control to Alembic so migration/version
+        # changes are committed reliably, especially on SQLite.
+        connection.commit()
         context.configure(
             connection=connection,
             target_metadata=target_metadata,

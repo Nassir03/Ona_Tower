@@ -14,8 +14,8 @@ class Settings(BaseSettings):
     port: int = 8400
     # Kept as a string so .env accepts both comma-separated and JSON-array values.
     cors_origins: str = (
-        "http://localhost:3000,http://127.0.0.1:3000,"
-        "http://localhost:3020,http://127.0.0.1:3020"
+        "http://localhost:3010,http://127.0.0.1:3010,"
+        "http://localhost:3000,http://127.0.0.1:3000"
     )
     log_level: str = "INFO"
 
@@ -56,16 +56,33 @@ class Settings(BaseSettings):
     @property
     def cors_origins_list(self) -> list[str]:
         value = self.cors_origins.strip()
-        if not value:
-            return []
+        origins: list[str] = []
         if value.startswith("["):
             try:
                 parsed = json.loads(value)
                 if isinstance(parsed, list):
-                    return [str(item).strip() for item in parsed if str(item).strip()]
+                    origins = [str(item).strip() for item in parsed if str(item).strip()]
             except json.JSONDecodeError:
-                pass
-        return [item.strip() for item in value.split(",") if item.strip()]
+                origins = []
+        elif value:
+            origins = [item.strip() for item in value.split(",") if item.strip()]
+
+        # Keep local development resilient when an older .env still lists a
+        # previous frontend port. Vite currently runs on 3010.
+        if self.app_env == "development":
+            local_origins = [
+                "http://localhost:3010",
+                "http://127.0.0.1:3010",
+                "http://localhost:3000",
+                "http://127.0.0.1:3000",
+                "http://localhost:5173",
+                "http://127.0.0.1:5173",
+            ]
+            for origin in local_origins:
+                if origin not in origins:
+                    origins.append(origin)
+
+        return origins
 
 
 @lru_cache

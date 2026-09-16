@@ -6,7 +6,7 @@ The project now has one clear frontend implementation in `src/` and one backend 
 
 ## Local ports
 
-- Frontend: **http://127.0.0.1:3000**
+- Frontend: **http://127.0.0.1:3010**
 - Backend: **http://127.0.0.1:8400**
 - API docs: **http://127.0.0.1:8400/docs**
 
@@ -56,6 +56,17 @@ Verified local project content remains as a graceful display fallback for the re
 
 PostgreSQL is optional for local development. The project defaults to SQLite so it can run immediately. Production can use PostgreSQL through `DATABASE_URL`.
 
+## Easiest Windows setup
+
+From PowerShell in the project root, run:
+
+```powershell
+npm run setup:windows
+npm run run:windows
+```
+
+The setup script creates a single `.venv` with Python 3.10-3.13, installs Python and npm dependencies, checks Pydantic/FastAPI, and applies Alembic migrations. The run script opens the FastAPI backend on port 8400 and the Vite frontend on port 3010. Do not create `.venv313` and then activate `.venv`; the scripts deliberately use only `.venv` to avoid that mismatch.
+
 ## First-time setup
 
 From the project root:
@@ -88,7 +99,7 @@ pip install -r requirements.txt
 Windows PowerShell:
 
 ```powershell
-py -3.12 -m venv .venv
+py -3.13 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 pip install -r requirements.txt
@@ -107,7 +118,7 @@ Use two terminals from the project root.
 ### Terminal 1 — backend
 
 ```bash
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8400
+python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8400
 ```
 
 Verify:
@@ -122,7 +133,7 @@ Verify:
 npm run dev
 ```
 
-Open `http://127.0.0.1:3000`.
+Open `http://127.0.0.1:3010`.
 
 ## Tests and checks
 
@@ -271,13 +282,13 @@ Run the FastAPI backend in terminal 1:
 python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8400
 ```
 
-Run the Vite/Express frontend in terminal 2:
+Run the Vite frontend in terminal 2:
 
 ```powershell
 npm run dev
 ```
 
-Open `http://127.0.0.1:3000/admin`. The supplied `.env.example` points the local frontend API at `http://127.0.0.1:8400/api`. For same-origin production/Vercel deployment, do not set `VITE_API_BASE_URL`.
+Open `http://127.0.0.1:3010/admin`. Vite proxies `/api` to FastAPI at `http://127.0.0.1:8400` during local development. For same-origin production/Vercel deployment, the frontend can continue using `/api`.
 
 ### Database upgrade
 
