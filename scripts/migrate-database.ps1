@@ -1,0 +1,13 @@
+$ErrorActionPreference = "Stop"
+$Root = Split-Path -Parent $PSScriptRoot
+Set-Location $Root
+$env:PYTHONPATH = "$Root\backend"
+
+$Python = ".\.venv\Scripts\python.exe"
+if (-not (Test-Path $Python)) {
+    throw "Virtual environment not found. Run .\scripts\setup-windows.ps1 first."
+}
+
+& $Python -m alembic -c ".\database\alembic.ini" upgrade head
+& $Python -m backend.app.database.seed
+& $Python -m backend.app.database.check

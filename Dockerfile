@@ -1,17 +1,16 @@
-FROM python:3.12-slim
+FROM python:3.13-slim
 
-WORKDIR /app
+WORKDIR /workspace
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/workspace/backend
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY backend/requirements.txt /workspace/backend/requirements.txt
+RUN python -m pip install --no-cache-dir -r /workspace/backend/requirements.txt
 
-COPY alembic.ini ./alembic.ini
-COPY migrations ./migrations
-COPY app ./app
+COPY backend /workspace/backend
 
 EXPOSE 8400
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8400"]
+CMD ["python", "-m", "uvicorn", "app.main:app", "--app-dir", "backend", "--host", "0.0.0.0", "--port", "8400"]

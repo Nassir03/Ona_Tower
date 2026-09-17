@@ -1,6 +1,13 @@
-.venv*
-__pycache__
-.pytest_cache
 .git
+.vercel
 .env
-*.pyc
+.env.*
+!.env.example
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+**/.venv
+frontend/node_modules
+frontend/dist
+*.db
+*.db-journal

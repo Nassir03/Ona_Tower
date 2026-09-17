@@ -1,44 +1,17 @@
 {
-  "name": "ona-towers",
-  "private": true,
+  "name": "ona-towers-fullstack",
   "version": "1.0.0",
-  "type": "module",
+  "private": true,
   "scripts": {
-    "dev": "vite --host 0.0.0.0 --port 3010",
-    "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
-    "build:vercel": "vite build",
-    "start": "node dist/server.cjs",
-    "preview": "vite preview --host 0.0.0.0 --port 3010",
-    "check": "vite build",
-    "lint": "tsc --noEmit",
-    "dev:frontend": "vite --host 0.0.0.0 --port 3010",
-    "dev:legacy": "tsx server.ts",
-    "backend": "python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8400",
-    "setup:windows": "powershell -ExecutionPolicy Bypass -File ./scripts/setup-windows.ps1",
-    "run:windows": "powershell -ExecutionPolicy Bypass -File ./scripts/run-project.ps1"
-  },
-  "dependencies": {
-    "@tailwindcss/vite": "^4.1.14",
-    "@vitejs/plugin-react": "^5.0.4",
-    "express": "^5.2.1",
-    "lucide-react": "^0.546.0",
-    "react": "^19.0.1",
-    "react-dom": "^19.0.1",
-    "vite": "^6.2.3"
-  },
-  "devDependencies": {
-    "@tailwindcss/postcss": "^4.3.3",
-    "@types/express": "^5.0.6",
-    "@types/node": "^22.14.0",
-    "autoprefixer": "^10.4.21",
-    "esbuild": "^0.28.2",
-    "tailwindcss": "^4.1.14",
-    "tsx": "^4.23.13",
-    "typescript": "~5.8.2"
-  },
-  "overrides": {
-    "vite": {
-      "rollup": "npm:@rollup/wasm-node"
-    }
+    "dev": "vercel dev -L",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:backend": "python -m uvicorn app.main:app --app-dir backend --reload --host 127.0.0.1 --port 8400",
+    "build": "npm --prefix frontend run build",
+    "check:frontend": "npm --prefix frontend run check",
+    "test:backend": "python -m pytest -c backend/pyproject.toml backend/tests -q",
+    "db:upgrade": "python -m alembic -c database/alembic.ini upgrade head",
+    "db:current": "python -m alembic -c database/alembic.ini current",
+    "db:seed": "python scripts/db_seed.py",
+    "db:check": "python scripts/db_check.py"
   }
 }
