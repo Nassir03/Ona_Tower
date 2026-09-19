@@ -41,7 +41,12 @@ def _b64decode(value: str) -> bytes:
 def validate_production_admin_config(settings: Settings) -> None:
     if settings.app_env != "production":
         return
-    if settings.admin_session_secret == _DEV_SECRET or settings.admin_password == _DEV_PASSWORD:
+    if (
+        len(settings.admin_session_secret) < 32
+        or settings.admin_session_secret == _DEV_SECRET
+        or len(settings.admin_password) < 12
+        or settings.admin_password in {_DEV_PASSWORD, "Oniria@1234."}
+    ):
         raise AppError(
             "Admin access is not configured for production.",
             code="admin_not_configured",

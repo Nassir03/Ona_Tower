@@ -1,31 +1,31 @@
-# ONA Towers Deployment — One Vercel Project + Supabase
+# ONA Towers Deployment — Vercel Services + Supabase
 
-## Architecture
+## Target architecture
 
 ONA Towers deploys as **one Vercel project** using Vercel Services:
 
 - `frontend/` — Vite + React service
 - `backend/` — FastAPI service
-- `database/` — Alembic migrations, not deployed as an application service
+- `database/` — Alembic migrations only; this folder is not an application service
 - Supabase — PostgreSQL database
 
-Public routing is controlled by the root `vercel.json`:
+The root `vercel.json` owns public routing:
 
-- `/api` and `/api/*` -> backend service
-- `/health` -> backend service
-- all other routes -> frontend service
+- `/api` and `/api/*` -> FastAPI
+- `/health` and `/health/*` -> FastAPI
+- all other routes -> Vite frontend
 
-The frontend therefore uses `VITE_API_BASE_URL=/api` in production.
+The frontend calls the API through the same origin with `VITE_API_BASE_URL=/api`. Deep frontend URLs such as `/admin`, `/residences`, and `/location` are rewritten to `index.html` inside the frontend service so browser refreshes continue to work.
 
-## 1. Prepare Supabase
+## 1. Create the Supabase database
 
-Create a Supabase project and copy two database connection strings from the **Connect** panel.
+Create a Supabase project, then open **Connect** in the Supabase dashboard. Copy the connection strings from Supabase instead of manually constructing hosts.
 
-### Runtime connection
+### Runtime connection for Vercel
 
-Use the **Transaction pooler** for the Vercel FastAPI runtime. It normally uses port `6543`.
+Use the **Transaction pooler** connection string, normally port `6543`, as `DATABASE_URL`. It is appropriate for serverless/auto-scaling workloads. The backend disables psycopg prepared statements and uses SQLAlchemy `NullPool` for production.
 
-Set it in Vercel as:
+Example shape only:
 
 ```env
 DATABASE_URL=postgresql+psycopg://postgres.PROJECT_REF:PASSWORD@POOLER_HOST:6543/postgres?sslmode=require
@@ -33,28 +33,57 @@ DATABASE_URL=postgresql+psycopg://postgres.PROJECT_REF:PASSWORD@POOLER_HOST:6543
 
 ### Migration connection
 
-Use a **Direct connection** or **Session pooler** for Alembic migrations. It normally uses port `5432`.
+Use a **Session pooler** connection string, normally port `5432`, or a direct connection when your machine supports the required network path. Store it locally/CI as `MIGRATION_DATABASE_URL`; do not expose it to frontend code.
 
-Keep it on your trusted development/CI machine as:
+Example shape only:
 
 ```env
-MIGRATION_DATABASE_URL=postgresql+psycopg://postgres.PROJECT_REF:PASSWORD@HOST:5432/postgres?sslmode=require
+MIGRATION_DATABASE_URL=postgresql+psycopg://postgres.PROJECT_REF:PASSWORD@POOLER_HOST:5432/postgres?sslmode=require
 ```
 
-Do not put the migration URL in frontend code.
+If your database password contains reserved URL characters, use the exact encoded connection string supplied by Supabase.
 
-## 2. Run Supabase migrations before first production deployment
+## 2. Prepare local migration environment
 
-From the repository root, create `.env` from `.env.example`, then set the real Supabase URLs.
+From the repository root, copy `.env.example` to `.env` and replace the database/admin values with production values. Do not commit `.env`.
 
-Windows:
+Production requires:
+
+```env
+APP_ENV=production
+APP_DEBUG=false
+API_PREFIX=/api
+AUTO_INIT_DB=false
+DATABASE_URL=YOUR_SUPABASE_TRANSACTION_POOLER_URL
+MIGRATION_DATABASE_URL=YOUR_SUPABASE_SESSION_OR_DIRECT_URL
+
+ADMIN_EMAIL=YOUR_REAL_ADMIN_EMAIL
+ADMIN_PASSWORD=YOUR_UNIQUE_PASSWORD_OF_AT_LEAST_12_CHARACTERS
+ADMIN_NAME=ONA Administrator
+ADMIN_ROLE=Administrator
+ADMIN_DEPARTMENT=Administration
+ADMIN_SESSION_SECRET=YOUR_RANDOM_SECRET_OF_AT_LEAST_32_CHARACTERS
+ADMIN_SESSION_HOURS=12
+```
+
+Generate a strong session secret with:
+
+```powershell
+python -c "import secrets; print(secrets.token_urlsafe(48))"
+```
+
+The backend now fails fast in `APP_ENV=production` when the database/admin settings are missing or still use local-development defaults.
+
+## 3. Run migrations and seed once before first production use
+
+Windows helper:
 
 ```powershell
 .\scripts\setup-windows.ps1
 .\scripts\migrate-database.ps1
 ```
 
-Equivalent commands:
+Equivalent commands from the repository root:
 
 ```powershell
 $env:PYTHONPATH = "$PWD\backend"
@@ -63,26 +92,48 @@ $env:PYTHONPATH = "$PWD\backend"
 .\.venv\Scripts\python.exe scripts\db_check.py
 ```
 
-Do **not** run Alembic automatically on every Vercel function invocation.
-
-## 3. Import the Git repository into Vercel
-
-Create **one Vercel project** from the repository root.
-
-In **Project Settings -> Build and Deployment**:
+Expected final migration revision:
 
 ```text
-Root Directory: repository root
-Framework: Services
+c4f2a31b7d90 (head)
 ```
 
-Do not choose `frontend/` or `backend/` as the project Root Directory.
+Do **not** run Alembic automatically on every Vercel request or function startup.
 
-The root `vercel.json` declares both services and their routing.
+## 4. Run local verification before deployment
 
-## 4. Vercel environment variables
+Backend tests:
 
-Add these to the Vercel project for Production and Preview as appropriate:
+```powershell
+python -m pytest -c backend/pyproject.toml backend/tests -q
+```
+
+Frontend typecheck + production build:
+
+```powershell
+cd frontend
+npm ci
+npm run check
+cd ..
+```
+
+Optional full-stack Vercel routing test after installing Vercel CLI:
+
+```powershell
+npm run dev
+```
+
+This runs `vercel dev -L` from the repository root.
+
+## 5. Import the Git repository into Vercel
+
+Create **one Vercel project from the repository root**. Do not create separate Vercel projects for `frontend/` and `backend/`.
+
+The root `vercel.json` defines both services. Vercel builds them independently and deploys them together behind one domain.
+
+## 6. Configure Vercel environment variables
+
+Add these in **Project Settings -> Environment Variables**. Use the real values for Production; add Preview values too if preview deployments must use the backend/database.
 
 ```env
 APP_ENV=production
@@ -102,13 +153,13 @@ ADMIN_SESSION_HOURS=12
 VITE_API_BASE_URL=/api
 ```
 
-Optional mail variables can also be added when SMTP notifications are enabled.
+Do **not** add `MIGRATION_DATABASE_URL` to the frontend. It is normally unnecessary on Vercel because schema migrations should be run from a trusted migration job or local machine before release.
 
-Because frontend and backend share the same Vercel origin, normal browser API calls do not require a production CORS origin. `CORS_ORIGINS` can stay empty unless another domain must call the API directly.
+Same-origin production traffic does not need an extra CORS origin. Leave `CORS_ORIGINS` empty unless another external origin must directly call the API.
 
-## 5. Deploy
+## 7. Deploy
 
-Push to the connected Git branch, or run from the repository root:
+Push the connected Git branch, or deploy from the repository root with Vercel CLI:
 
 ```powershell
 vercel
@@ -120,34 +171,38 @@ Production:
 vercel --prod
 ```
 
-Vercel builds `frontend/` and `backend/` as separate services but deploys them atomically as **one project and one domain**.
+## 8. Verify after deployment
 
-## 6. Verify production
-
-Check:
+Replace `YOUR-DOMAIN` below with the Vercel/custom domain:
 
 ```text
 https://YOUR-DOMAIN/
+https://YOUR-DOMAIN/residences
 https://YOUR-DOMAIN/admin
 https://YOUR-DOMAIN/health
 https://YOUR-DOMAIN/health/database
-```
-
-API example:
-
-```text
 https://YOUR-DOMAIN/api/residences
 ```
 
-Production API docs are intentionally disabled by the FastAPI configuration when `APP_ENV=production`.
+Expected behavior:
 
-## 7. Future database changes
+- `/` and public pages render the Vite frontend.
+- Refreshing a nested frontend route does not return a 404.
+- `/health` returns the FastAPI liveness response.
+- `/health/database` reports `database: connected`.
+- `/api/residences` returns seeded residence JSON.
+- `/admin` loads the admin UI and the configured production admin can sign in.
+- Creating an enquiry persists it in Supabase and it appears in the admin workspace.
 
-For every schema change:
+Production Swagger/ReDoc are intentionally disabled when `APP_ENV=production`.
 
-1. create/review an Alembic migration under `database/migrations/versions/`;
+## 9. Future schema changes
+
+For every database schema change:
+
+1. create/review a new Alembic migration under `database/migrations/versions/`;
 2. apply it to Supabase with `MIGRATION_DATABASE_URL`;
-3. verify the database;
-4. deploy the application code.
+3. run `scripts/db_check.py`;
+4. deploy the matching application code.
 
-Never edit the Supabase production schema manually and then rely on `create_all()` to reconcile it.
+Do not use `Base.metadata.create_all()` as a production migration strategy, and do not manually change the production schema without adding the matching Alembic migration.

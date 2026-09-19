@@ -1,0 +1,50 @@
+import pytest
+
+from app.core.config import Settings, validate_production_settings
+
+
+def test_production_settings_reject_development_defaults():
+    settings = Settings(_env_file=None, app_env="production")
+
+    with pytest.raises(RuntimeError, match="Invalid production configuration"):
+        validate_production_settings(settings)
+
+
+def test_production_settings_accept_supabase_runtime_values():
+    settings = Settings(
+        _env_file=None,
+        app_env="production",
+        app_debug=False,
+        auto_init_db=False,
+        database_url=(
+            "postgresql://postgres.project-ref:password@"
+            "aws-0-region.pooler.supabase.com:6543/postgres?sslmode=require"
+        ),
+        admin_email="admin@example.com",
+        admin_password="unique-production-password",
+        admin_session_secret="x" * 48,
+    )
+
+    validate_production_settings(settings)
+    assert settings.sqlalchemy_database_url.startswith("postgresql+psycopg://")
+
+
+def test_production_postgres_uses_null_pool_and_disables_prepared_statements():
+    from sqlalchemy.pool import NullPool
+    from app.database.session import build_engine_options
+
+    settings = Settings(
+        _env_file=None,
+        app_env="production",
+        database_url=(
+            "postgresql://postgres.project-ref:password@"
+            "aws-0-region.pooler.supabase.com:6543/postgres?sslmode=require"
+        ),
+        admin_email="admin@example.com",
+        admin_password="unique-production-password",
+        admin_session_secret="x" * 48,
+    )
+    options = build_engine_options(settings)
+
+    assert options["poolclass"] is NullPool
+    assert options["connect_args"]["prepare_threshold"] is None

@@ -9,13 +9,14 @@ from fastapi.responses import JSONResponse
 
 from app.api.router import api_router
 from app.api.routes.health import router as health_router
-from app.core.config import get_settings
+from app.core.config import get_settings, validate_production_settings
 from app.core.exceptions import AppError
 from app.core.logging import configure_logging
 from app.database.bootstrap import initialize_database
 from app.middleware.request_context import RequestContextMiddleware
 
 settings = get_settings()
+validate_production_settings(settings)
 configure_logging(settings.log_level)
 logger = logging.getLogger(__name__)
 

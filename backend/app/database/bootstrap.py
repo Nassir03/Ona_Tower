@@ -2,7 +2,7 @@ import logging
 
 from sqlalchemy import select
 
-from app.core.config import get_settings
+from app.core.config import get_settings, validate_production_settings
 from app.core.passwords import hash_password
 from app.database.base import Base
 from app.database.models import (
@@ -177,6 +177,7 @@ def initialize_database(*, create_schema: bool = False) -> None:
     startup from calling ``create_all`` prevents the database from getting ahead
     of the Alembic version table and eliminates duplicate-column migration drift.
     """
+    validate_production_settings(get_settings())
     if create_schema:
         Base.metadata.create_all(bind=engine)
     with SessionLocal() as db:

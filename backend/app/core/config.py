@@ -103,6 +103,42 @@ class Settings(BaseSettings):
         return normalize_database_url(self.database_url)
 
 
+def validate_production_settings(settings: "Settings") -> None:
+    """Fail fast when a production runtime would start with unsafe defaults.
+
+    Local development and tests are intentionally unchanged. This check runs
+    only when APP_ENV=production and is called by the web app and production
+    database seed path.
+    """
+    if settings.app_env != "production":
+        return
+
+    errors: list[str] = []
+    database_url = settings.sqlalchemy_database_url.strip()
+    if not database_url.startswith("postgresql+psycopg://"):
+        errors.append("DATABASE_URL must be a PostgreSQL/Supabase connection string")
+
+    email = settings.admin_email.strip().lower()
+    if not email or email == "admin@onatowers.dev":
+        errors.append("ADMIN_EMAIL must be set to the real production administrator email")
+
+    password = settings.admin_password
+    insecure_passwords = {"ona-admin-local", "Oniria@1234."}
+    if len(password) < 12 or password in insecure_passwords:
+        errors.append("ADMIN_PASSWORD must be a unique production password of at least 12 characters")
+
+    secret = settings.admin_session_secret
+    if len(secret) < 32 or secret == "ona-local-development-secret":
+        errors.append("ADMIN_SESSION_SECRET must be a unique random value of at least 32 characters")
+
+    if settings.auto_init_db:
+        errors.append("AUTO_INIT_DB must remain false in production; use Alembic migrations instead")
+
+    if errors:
+        joined = "; ".join(errors)
+        raise RuntimeError(f"Invalid production configuration: {joined}.")
+
+
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
