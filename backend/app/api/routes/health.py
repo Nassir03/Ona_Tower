@@ -2,7 +2,6 @@ import logging
 
 from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import text
-from sqlalchemy.exc import SQLAlchemyError
 
 from app.core.config import (
     get_settings,
@@ -50,14 +49,14 @@ async def configuration_health():
 
 
 @router.get("/health/database")
-async def database_health():
+def database_health():
     try:
         from app.database.session import get_engine
 
         with get_engine().connect() as connection:
             connection.execute(text("SELECT 1"))
 
-    except (SQLAlchemyError, Exception) as exc:
+    except Exception as exc:
         logger.exception("Database health check failed")
 
         raise HTTPException(
